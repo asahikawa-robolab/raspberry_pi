@@ -1,0 +1,8 @@
+① モードの名前と仕様（機能，必要なパラメータ）を考える．
+② Modes.cpp に void ORDER::mode_モード名(void) という形式でモードの処理を書く．
+③ Orders.hpp の class ORDER 内の public: の項に void mode_モード名(void); を追加する．
+② Orders.hpp で define されている NUM_MODE の値を＋１する．（モードの種類の数を指定する）
+③ NUM_MODE の下（const char _Modes[][][] の上）の typedef enum MODE_KIND に 「MODE_モード名」を追加する．
+④ const char _Modes[][][] に新しい要素を追加する．一つ目はモード名，２つ目の整数値はモードを実行するときに必要なパラメータの数．
+⑤ Orders.cpp にある void ORDERS::execute(void) 内の switch-case 文に新しく追加したモードを追加する．（q[i].mode_モード名()）
+⑥ Main/order_format.txt に新しく追加したモードの仕様を書き込む．

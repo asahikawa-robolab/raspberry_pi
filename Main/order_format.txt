@@ -1,0 +1,123 @@
+/*-----------------------------------------------
+ *
+ * 移動
+ *
+-----------------------------------------------*/
+*** encoder ***
+x y min_rpm max_rpm acc permissible_error edge
+
+接地エンコーダで移動
+acc : 立ち上がり，立下りの加速度 [rpm/mm]
+permissible_error : 許容する誤差 [mm]
+edge : RISE, FALL, BOTH, NONE のいずれか
+
+
+*** limit_chassis ***
+rpm theta[deg] limit_name
+
+リミットスイッチが押されるまで移動する
+
+
+*** turn ***
+target_spin[deg] spin_mode
+
+ロボットの回転角が target_spin になるように旋回する．
+spin_mode : CW（時計回り），CCW（反時計回り），SHORTEST（最短）
+
+
+/*-----------------------------------------------
+ *
+ * アクチュエータ
+ *
+-----------------------------------------------*/
+*** angle ***
+actuator_name target_value
+
+回転角制御
+
+
+*** servo ***
+actuator_name target_value wait_time_sec
+
+actuator_name で指定したサーボモータの角度を target_value にする
+wait_time_sec : サーボモータに指令を出した後待機する時間
+
+
+*** motor ***
+motor_name duty wait_time_sec
+
+motor_name で指定したモータのduty比（-100~100）にする
+wait_time_sec : モータに指令を出した後待機する時間
+
+
+/*-----------------------------------------------
+ *
+ * 値の指定
+ *
+-----------------------------------------------*/
+*** set_odometry ***
+x(value) y(value)
+
+例）
+(10, 20) に設定     ：x10 y20
+x のみ 30 に設定    ：x30 y
+
+オドメトリを指定した値で上書きする
+
+
+*** set_spin ***
+spin[deg]
+
+指定した値でロボットの回転（spin）を上書きする
+
+
+/*-----------------------------------------------
+ *
+ * ライントレーサ
+ *
+-----------------------------------------------*/
+*** along_line ***
+target_odometry min_rpm max_rpm acc theta[deg] gain edge
+
+ラインに沿って移動する．
+一方向はライントレーサによって決定されるため，
+もう一方向の目標値をオドメトリで設定する．
+target_odometry : 目標地点のオドメトリ（移動方向のみ）
+acc : 立ち上がり，立下りの加速度 [rpm/mm]
+theta : 0 or 90 or 180 or -90
+gain : 軌道修正する量のゲイン
+edge : RISE, FALL, BOTH, NONE のいずれか
+
+
+*** detect_line ***
+rpm theta[deg] x_or_y
+
+x_or_y で指定したラインが検出されるまで指定した MOTION で移動する
+x_or_y : 検出するライン．（x : 横，y : 縦）
+
+
+*** positioning_line ***
+rpm x_or_y odometry_value
+
+ラインに位置を合わせてオドメトリをセットする．
+モード実行時にライントレーサの値が 0 だったらエラーが起きる．
+x_or_y : 検出するライン．（x : 横，y : 縦）
+odometry_value：    位置合わせが完了したときにオドメトリを上書きする値．
+                    x_or_y に x を指定したら y 座標の値，y を指定したら x 座標の値になる．
+
+
+/*-----------------------------------------------
+ *
+ * その他
+ *
+-----------------------------------------------*/
+*** test ***
+wait_time
+
+指定時間待機する
+
+
+*** wait ***
+
+スタートボタン（_Switch.d->start）が押されるまで待機．
+seq 1 1 1 に割り当てられている特殊なモード

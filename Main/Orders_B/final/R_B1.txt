@@ -1,0 +1,15 @@
+ichibanuemade
+2 1 1 angle
+elevator_low -5000
+
+ichibanuemade
+2 2 1 angle
+elevator_up -4250
+
+atariniiku
+3 1 1 limit_chassis
+10 -45 0 right
+
+servo
+4 1 1 servo
+bath1 0 3

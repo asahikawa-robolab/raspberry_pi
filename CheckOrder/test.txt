@@ -1,0 +1,151 @@
+reset
+2 1 1 set_odometry
+x0 y0
+
+reset
+2 2 1 set_spin
+-90
+
+maehe
+3 1 1 along_line
+4150 30 50 100 90 5
+
+ichibanuemade
+3 2 1 angle
+elevator_low -5000
+
+ichibanuemade
+3 3 1 angle
+elevator_up -4250
+
+servo
+3 4 1 servo
+bath 120 1
+
+servo_ageru
+3 5 1 servo
+sheet_root 55 2
+
+servo_ageru
+3 6 1 servo
+sheet_tip 79 2
+
+bath_base_no_chikaku_made
+4 1 1 encoder
+250 4400 30 50 100
+
+bath_base_ni_ateru
+5 1 1 limit_chassis
+15 45 left
+
+reset_x
+6 1 1 set_odometry
+x0 y
+
+yoko_no_line_made_susumu
+7 1 1 encoder
+0 5300 30 50 100
+
+bath1_wo_kakeru_mae_made_idou
+8 1 1 encoder
+1000 5300 30 50 100
+
+bath1_monohoshizao_chikakumade
+8 1 2 encoder
+1300 4800 30 50 100
+
+kaiten
+8 2 1 turn
+-45 SHORTEST
+
+sao_ni_atarini_iku
+9 1 1 limit_chassis
+15 -90 bath1
+
+servo_bath1
+10 1 1 servo
+bath 0 1
+
+monohoshizao_kara_hanareru
+11 1 1 encoder
+1300 4800 30 31 100
+
+bath2_no_mae_made_idou
+12 1 1 encoder
+2550 4800 30 50 100
+
+kaiten
+12 2 1 turn
+135 CCW
+
+bath2_atariniiku
+13 1 1 limit_chassis
+15 -90 bath2
+
+servo_bath2
+14 1 1 servo
+bath 180 1
+
+sheet_base_no_chikaku_made
+15 1 1 encoder
+3810 5700 30 50 100
+
+sheet_base_ni_ateru
+15 1 2 limit_chassis
+15 90 front
+
+kaiten
+15 2 1 turn
+90 SHORTEST
+
+reset_odometry
+16 1 1 set_odometry
+x0 y0
+
+choisusumu
+17 1 1 encoder
+-530 0 30 31 10
+
+sageru
+18 1 1 angle
+elevator_up -3350
+
+servo_ageru
+18 2 1 servo
+sheet_root 69 2
+
+sentaku_basami
+19 1 1 servo
+sheet_tip 25 2
+
+uemade
+20 1 1 angle
+elevator_up -4050
+
+servo_modosu
+21 1 1 servo
+sheet_tip 79 2
+
+hidari
+22 1 1 encoder
+-2500 0 30 31 10
+
+servo_ageru
+22 2 1 servo
+sheet_root 55 2
+
+temanizureru
+23 1 1 encoder
+-2500 -30 30 31 10
+
+hidari
+24 1 1 encoder
+-3500 -30 30 31 10
+
+find_tate_line
+25 1 1 encoder
+-4500 -30 30 50 100
+
+back_to_start_zone
+26 1 1 along_line
+-6000 30 50 600 -90 5

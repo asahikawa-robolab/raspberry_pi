@@ -1,0 +1,55 @@
+reset
+2 1 1 set_odometry
+x0 y0
+
+ichibanuemade
+3 1 1 angle
+elevator_low -5000
+
+ichibanuemade
+3 2 1 angle
+elevator_up -4250
+
+servo_ageru
+3 3 1 servo
+sheet_root 55 2
+
+choisusumu
+4 1 1 encoder
+0 530 30 31 10 0
+
+sageru
+5 1 1 angle
+elevator_up -3350
+
+servo_ageru
+5 2 1 servo
+sheet_root 69 2
+
+sentakubasami
+6 1 1 servo
+sheet_tip 30 2
+
+uemade
+7 1 1 angle
+elevator_up -4050
+
+sa-bomodosu
+8 1 1 servo
+sheet_tip 79 2
+
+hidari
+9 1 1 encoder
+0 2500 30 31 10 0
+
+servo_ageru
+9 2 1 servo
+sheet_root 55 2
+
+temaenizureru
+10 1 1 encoder
+-30 2500 30 31 10 0
+
+hidari
+11 1 1 encoder
+0 3500 30 31 10 0
