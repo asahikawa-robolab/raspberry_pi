@@ -1,5 +1,5 @@
 CC:=g++
-CFLAGS := -Wall -O2
+CFLAGS := -Wall -O2 -pthread
 LIBS = `pkg-config opencv --cflags --libs` `urg_c-config --cflags --libs` -I /usr/local/include -L /usr/local/lib -lwiringPi
 
 SRC_DIR:=./src
@@ -20,8 +20,8 @@ SHARE_DEPS:=$(addprefix $(SHARE_OBJ_DIR)/, $(notdir $(SHARE_SRC:.cpp=.d)))
 
 INCLUDE:= -I $(INC_DIR) -I $(SHARE_INC_DIR)
 
-.PHONY: main
-main: $(OBJ) $(SHARE_OBJ)
+.PHONY: all
+all: $(OBJ) $(SHARE_OBJ)
 	$(CC) \
 	$(CFLAGS) \
 	$(LIBS) \

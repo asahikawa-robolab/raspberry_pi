@@ -1,7 +1,0 @@
-ichibanuemade
-2 1 1 angle
-elevator_low -5000
-
-ichibanuemade
-2 2 1 angle
-elevator_up -4250
