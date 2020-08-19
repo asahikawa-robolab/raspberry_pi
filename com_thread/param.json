@@ -1,0 +1,15 @@
+{
+    "rot": [
+        ["enable", 1, 0],
+        ["zero point pwm", 30, 30],
+        ["max pwm", 80, 100],
+        ["min pwm", 5, 5],
+        ["stop rev", 3, 3],
+        ["stop pwm", 10, 10],
+        ["pwm change", 170, 170],
+        ["kp", 100, 100],
+        ["permissible err", 1, 1],
+        ["encoder pol", 1, 1],
+        ["encoder resolution", 300, 300]
+    ]
+}

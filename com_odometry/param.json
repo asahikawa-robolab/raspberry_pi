@@ -1,0 +1,6 @@
+{
+    "odometry": [
+        ["encoder pol", 0, 0],
+        ["encoder resolution", 300, 300]
+    ]
+}
