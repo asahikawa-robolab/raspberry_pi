@@ -1,11 +1,6 @@
 {
     "thread": {
-        "com": true
-    },
-    "com": [
-        {"name" : "rot",        "enable" : false,    "path" : "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LQ-if00-port0"},
-        {"name" : "switch",     "enable" : true,   "path" : "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A906V9YT-if00-port0"},
-        {"name" : "imu",        "enable" : true,   "path" : "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579AL-if00-port0"},
-        {"name" : "controller", "enable" : true,    "path" : "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A906V99N-if00-port0"}
-    ]
+        "operate_auto": true,
+        "kbhit" : true
+    }
 }

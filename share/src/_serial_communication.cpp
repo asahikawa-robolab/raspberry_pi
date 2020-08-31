@@ -1,6 +1,6 @@
 /*-----------------------------------------------
  *
- * Last updated : 2020/08/25, 21:14
+ * Last updated : 2020/08/27, 02:12
  * Author       : Takuto Jibiki
  *
 -----------------------------------------------*/
@@ -540,7 +540,7 @@ namespace jibiki
 			std::cout << "*** error ***\n"
 					  << err << std::endl;
 			exit_flag = true;
-			exit(EXIT_FAILURE);
+			return;
 		}
 		catch (std::exception &e)
 		{
@@ -548,7 +548,7 @@ namespace jibiki
 					  << __PRETTY_FUNCTION__ << "\n"
 					  << e.what() << std::endl;
 			exit_flag = true;
-			exit(EXIT_FAILURE);
+			return;
 		}
 	}
 

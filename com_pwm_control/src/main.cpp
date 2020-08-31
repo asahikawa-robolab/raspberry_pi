@@ -26,8 +26,7 @@ int main(void)
                     pwm -= 10;
                     break;
                 case 'q':
-                    exit(EXIT_SUCCESS);
-                    break;
+                    return;
                 }
                 printf("%d\n", pwm.read());
             }

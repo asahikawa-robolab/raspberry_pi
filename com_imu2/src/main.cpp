@@ -26,8 +26,7 @@ int main(void)
                     d.write_offset(0);
                     break;
                 case 'q':
-                    exit(EXIT_SUCCESS);
-                    break;
+                    return;
                 }
             }
 

@@ -1,6 +1,6 @@
 /*-----------------------------------------------
  *
- * Last updated : 2020/08/25, 02:08
+ * Last updated : 2020/08/31, 01:12
  * Author       : Takuto Jibiki
  *
 -----------------------------------------------*/
@@ -9,6 +9,8 @@
 
 #include <mutex>
 #include <vector>
+#include <unistd.h>
+#include <iostream>
 
 namespace jibiki
 {
@@ -47,6 +49,14 @@ namespace jibiki
             std::lock_guard<std::mutex> lock(m_mtx);
             T ret = m_data;
             return ret;
+        }
+        /* 指定時間ロックをかけるだけ */
+        inline void test_lock(useconds_t lock_time)
+        {
+            std::lock_guard<std::mutex> lock(m_mtx);
+            std::cout << "locked" << std::endl;
+            usleep(lock_time);
+            std::cout << "unlocked" << std::endl;
         }
         /* 演算子のオーバーロード */
         inline void operator+=(T n) { write(read() + n); }
@@ -93,6 +103,12 @@ namespace jibiki
             std::lock_guard<std::mutex> lock(m_mtx);
             m_data.resize(size);
         }
+        /* クリア */
+        inline void clear(void)
+        {
+            std::lock_guard<std::mutex> lock(m_mtx);
+            m_data.clear();
+        }
     };
 
     /*-----------------------------------------------
@@ -108,7 +124,7 @@ namespace jibiki
         OPERATE_KEYBOARD, /* キーボード */
     } OperateMethod;
     bool manage_thread(bool exit_flag,
-                       OperateMethod my_method = OPERATE_NONE,
+                       const OperateMethod my_method = OPERATE_NONE,
                        OperateMethod current_method = OPERATE_NONE);
     bool enable_thread(std::string thread_name,
                        std::string json_path = "setting.json");

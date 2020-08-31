@@ -29,11 +29,11 @@ int main(void)
         /* 通信 */
         std::thread t_com([&exit_flag] {
             jibiki::ProcParamCom com("setting.json",
-                                    std::ref(exit_flag),
-                                    {com_rot_control,
-                                     com_switch,
-                                     com_imu,
-                                     com_controller});
+                                     std::ref(exit_flag),
+                                     {com_rot_control,
+                                      com_switch,
+                                      com_imu,
+                                      com_controller});
         });
         /* キー入力 */
         std::thread t_kbhit(thread_kbhit, std::ref(exit_flag));
@@ -45,7 +45,7 @@ int main(void)
     {
         std::cerr << e.what() << std::endl;
         exit_flag = true;
-        exit(EXIT_FAILURE);
+        return;
     }
 
     return 0;

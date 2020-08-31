@@ -24,8 +24,7 @@ int main(void)
                     reset_flag ^= 1;
                     break;
                 case 'q':
-                    exit(EXIT_SUCCESS);
-                    break;
+                    return;
                 }
             }
 

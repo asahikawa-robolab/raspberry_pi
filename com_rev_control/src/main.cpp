@@ -26,8 +26,7 @@ int main(void)
                     rev -= 10;
                     break;
                 case 'q':
-                    exit(EXIT_SUCCESS);
-                    break;
+                    return;
                 }
             }
 

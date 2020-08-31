@@ -1,6 +1,6 @@
 /*-----------------------------------------------
  *
- * Last updated : 2020/08/25, 05:31
+ * Last updated : 2020/08/27, 02:12
  * Author       : Takuto Jibiki
  *
 -----------------------------------------------*/
@@ -12,7 +12,7 @@
 namespace jibiki
 {
     bool manage_thread(bool exit_flag,
-                               OperateMethod my_method,
+                               const OperateMethod my_method,
                                OperateMethod current_method)
     {
         /* exit_flag が立ったら処理を終了 */

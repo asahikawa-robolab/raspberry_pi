@@ -26,8 +26,7 @@ int main(void)
                     angle -= 360;
                     break;
                 case 'q':
-                    exit(EXIT_SUCCESS);
-                    break;
+                    return;
                 }
             }
 
