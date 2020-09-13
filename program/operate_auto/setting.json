@@ -1,0 +1,7 @@
+{
+    "thread": {
+        "operate_auto": true,
+        "kbhit" : true,
+        "display" : true
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "mode_list": [
+        "test"
+    ],
+    "test": [
+        {
+            "name": "order1",
+            "seq": [0, 0, 0],
+            "mode": "test",
+            "param": ["2"]
+        },
+        {
+            "name": "order2",
+            "seq": [1, 0, 0],
+            "mode": "test",
+            "param": ["4"]
+        },
+        {
+            "name": "order3",
+            "seq": [1, 1, 0],
+            "mode": "test",
+            "param": ["2"]
+        },
+        {
+            "name": "order4",
+            "seq": [1, 1, 1],
+            "mode": "test",
+            "param": ["1"]
+        },
+        {
+            "name": "order5",
+            "seq": [2, 0, 0],
+            "mode": "test",
+            "param": ["2"]
+        }
+    ]
+}
