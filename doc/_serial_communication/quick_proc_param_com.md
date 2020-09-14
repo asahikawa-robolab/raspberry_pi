@@ -10,7 +10,7 @@
 
 # 1. JSON ファイルの準備
 * 以下の値を記述した JSON ファイルを用意する必要がある．
-    * `jibiki::thread::enable` 用の値
+    * `jibiki::thread::enable()` 用の値
         * スレッドを実行するかどうか（`true` / `false`）
     * `jibiki::ProcParamCom` 用の値
         * 通信を行うかどうか（`true` / `false`）
@@ -69,7 +69,7 @@ void com_rot_control(std::string path, std::string name)
 
 # 4. オブジェクトの作成
 ```C++
-ProcParamCom(ShareVal<bool> &exit_flag,
+ProcParamCom(ShareVar<bool> &exit_flag,
                 std::vector<ComFunc> com_func,
                 std::string json_path = "setting.json");
 ```
@@ -132,7 +132,7 @@ void com_test2(std::string path, std::string name)
     std::cout << "\t\tcom_test2\n" << std::flush;
 }
 
-void process_kbhit(jibiki::ShareVal<bool> &exit_flag)
+void process_kbhit(jibiki::ShareVar<bool> &exit_flag)
 {
     if (!jibiki::thread::enable("kbhit"))
         return;
@@ -150,7 +150,7 @@ void process_kbhit(jibiki::ShareVal<bool> &exit_flag)
 
 int main(void)
 {
-    jibiki::ShareVal<bool> exit_flag; /* 終了フラグ */
+    jibiki::ShareVar<bool> exit_flag; /* 終了フラグ */
 
     jibiki::ProcParamCom com(std::ref(exit_flag),
                              {com_test1,
@@ -177,7 +177,7 @@ int main(void)
 }
 ```
 
-* プログラムの開始とともに別スレッドで `com_test1`，`com_test2` を実行する．
+* プログラムの開始とともに別スレッドで `com_test1()`，`com_test2()` を実行する．
 * キーボードの `q` を入力するとすべてのスレッドが終了し，プログラムも終了する．
 * このサンプルプログラムを実際に実行する場合は `setting.json` のデバイスファイルのパスを適切なものに変更する必要がある．
 * サンプルプログラムの動作確認はしてないです．

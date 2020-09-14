@@ -10,8 +10,8 @@ int main(void)
             "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LQ-if00-port0",
             5, 8, B57600, "odometry", true);
 
-        jibiki::ShareVal<bool> reset(false);
-        jibiki::ShareVal<int32_t> odometry[2];
+        jibiki::ShareVar<bool> reset(false);
+        jibiki::ShareVar<int32_t> odometry[2];
         odometry[0] = 0;
         odometry[1] = 0;
 
@@ -23,7 +23,7 @@ int main(void)
                 switch (getchar())
                 {
                 case 'r':
-                    reset = reset.read() ^ 1;
+                    reset ^= 1;
                     break;
                 case 'q':
                     return 0;

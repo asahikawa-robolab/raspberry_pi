@@ -4,10 +4,10 @@
 # jibiki::thread ::manage
 ### 宣言
 ```C++
-bool manage(ShareVal<bool> &exit_flag);                 // (1)
+bool manage(ShareVar<bool> &exit_flag);                 // (1)
 
-bool manage(ShareVal<bool> &exit_flag,
-            ShareVal<OperateMethod> &current_method,
+bool manage(ShareVar<bool> &exit_flag,
+            ShareVar<OperateMethod> &current_method,
             OperateMethod my_method);                   // (2)
 ```
 ### 概要
@@ -39,7 +39,7 @@ bool manage(ShareVal<bool> &exit_flag,
 * usleep
 * std::thread
 * jibiki::kbhit
-* [jibiki::ShareVal](overview.md/#jibikiShareVal)
+* [jibiki::ShareVar](overview.md/#jibikiShareVar)
 * [jibiki::thread ::enable](#jibikithread-enable)
 * [jibiki::thread ::OperateMethod](#jibikithread-OperateMethod)
 * jibiki::ProcOperateAuto
@@ -74,7 +74,7 @@ JSON ファイルは次のフォーマットで記述する．
 }
 ```
 * 最初のブロックの `"thread"` は必須．
-* `"thread_name1"`，`"thread_name2"`，`...`，`"thread_namex"` には `jibiki::thread::enable` の引数 `thread_name` に指定した文字列を記述する．
+* `"thread_name1"`，`"thread_name2"`，`...`，`"thread_namex"` には `jibiki::thread::enable()` の引数 `thread_name` に指定した文字列を記述する．
 * スレッドを実行する場合は `true`，実行しない場合は `false` を指定する．
 ### 戻り値
 * JSON ファイルに記載した `true` / `false` の値が戻ってくる．
@@ -92,7 +92,7 @@ JSON ファイルは次のフォーマットで記述する．
 * usleep
 * std::thread
 * jibiki::kbhit
-* [jibiki::ShareVal](overview.md/#jibikiShareVal)
+* [jibiki::ShareVar](overview.md/#jibikiShareVar)
 * [jibiki::thread ::manage](#jibikithread-manage)
 
 # jibiki::thread ::OperateMethod
@@ -106,7 +106,7 @@ typedef enum
 } OperateMethod;
 ```
 ### 概要
-* `jibiki::thread::manage` で使用する列挙型．
+* `jibiki::thread::manage()` で使用する列挙型．
 * ユーザーが実際に使用するのは `OPERATE_AUTO` と `OPERATE_MANUAL` のみ．
 
 ### 関連

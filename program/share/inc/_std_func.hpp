@@ -1,9 +1,3 @@
-/*-----------------------------------------------
- *
- * Last updated : 2020/08/23, 16:03
- * Author       : Takuto Jibiki
- *
------------------------------------------------*/
 #ifndef _STDFUNC_HPP
 #define _STDFUNC_HPP
 #define _USE_MATH_DEFINES
@@ -14,13 +8,9 @@
 
 namespace jibiki
 {
-    /*-----------------------------------------------
-     *
-     * プロトタイプ宣言
-     *
-    -----------------------------------------------*/
     int kbhit(void);
-    struct timespec get_time(void);
+    typedef struct timespec timespec;
+    timespec get_time(void);
     std::vector<std::string> split(const std::string &str, char sep);
     picojson::value load_json_file(std::string path);
 
@@ -36,15 +26,22 @@ namespace jibiki
         return (smaller <= input) && (input < bigger);
     }
 
+    /* smaller <= input <= bigger を満たすかどうかを返す */
+    template <typename T>
+    inline bool between2(T smaller, T input, T bigger)
+    {
+        return (smaller <= input) && (input <= bigger);
+    }
+
     /* 与えられた２つの時刻の差を返す */
-    inline double calc_sec(struct timespec s, struct timespec e)
+    inline double calc_sec(timespec s, timespec e)
     {
         return (e.tv_sec - s.tv_sec + (e.tv_nsec - s.tv_nsec) * 1E-9);
     }
 
     /* 与えられた２点の距離を返す */
     template <typename T>
-    inline double calc_dis(T a, T b)
+    inline double calc_dist(T a, T b)
     {
         return (sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2)));
     }

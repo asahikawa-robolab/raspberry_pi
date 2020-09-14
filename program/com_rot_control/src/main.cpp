@@ -10,7 +10,7 @@ int main(void)
             "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LQ-if00-port0",
             5, 6, B57600, "rot", true);
 
-        jibiki::ShareVal<short> angle(0);
+        jibiki::ShareVar<short> angle(0);
 
         while (1)
         {

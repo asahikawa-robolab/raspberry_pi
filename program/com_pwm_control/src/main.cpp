@@ -10,7 +10,7 @@ int main(void)
             "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LQ-if00-port0",
             5, 1, B57600, "pwm", true);
 
-        jibiki::ShareVal<int8_t> pwm(0);
+        jibiki::ShareVar<int8_t> pwm(0);
 
         while (1)
         {

@@ -1,6 +1,6 @@
 #include "../../share/inc/_std_func.hpp"
 #include "../../share/inc/_serial_communication.hpp"
-#include "../inc/module.hpp"
+#include "../../share/inc/module.hpp"
 
 int main(void)
 {
@@ -12,7 +12,7 @@ int main(void)
             1, 4, B57600, "imu", false);
 
         /* センサのデータを管理するクラス */
-        ImuData d;
+        Imu d;
 
         while (1)
         {

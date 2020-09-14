@@ -1,9 +1,3 @@
-/*-----------------------------------------------
- *
- * Last updated : 2020/09/06, 17:19
- * Author       : Takuto Jibiki
- *
------------------------------------------------*/
 #ifndef _SERIAL_COMMUNICATION_HPP
 #define _SERIAL_COMMUNICATION_HPP
 #include <sys/types.h>
@@ -127,14 +121,14 @@ namespace jibiki
     /* 関数ポインタ */
     typedef void (*ComFunc)(std::string path, std::string name);
     /* コンストラクタ */
-    ProcParamCom(ShareVal<bool> &exit_flag,
+    ProcParamCom(ShareVar<bool> &exit_flag,
                  std::vector<ComFunc> com_func,
                  std::string json_path = "setting.json");
     /* デストラクタ */
     ~ProcParamCom(void) { m_t.join(); }
 
   private:
-    ShareVal<bool> *m_exit_flag;
+    ShareVar<bool> *m_exit_flag;
     std::vector<ComFunc> m_com_func;
     std::string m_json_path;
     std::vector<std::string> m_name;
@@ -143,7 +137,7 @@ namespace jibiki
     std::thread m_t;
 
   private:
-    void init(ShareVal<bool> &exit_flag,
+    void init(ShareVar<bool> &exit_flag,
               std::vector<ComFunc> com_func,
               std::string json_path);
     void launch(void);

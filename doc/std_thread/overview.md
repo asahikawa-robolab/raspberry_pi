@@ -65,9 +65,9 @@ func1
 func1
 
 ```
-* `usleep` は引数に数値で指定した時間 [μs] だけプログラムをブロッキング（停止）する関数（`1E6` は `1 * 10^6` という意味）．
-* 戻り値と引数の型がともに `void` の関数（`func1`，`func2`）を用意し，`std::thread` オブジェクトの作成時に引数として関数を渡すことで `func1`，`func2` を並列で実行できる．
-* `std::thread` のオブジェクトが破棄される前に [`std::thread::join`](https://cpprefjp.github.io/reference/thread/thread/join.html) か [`std::thread::detach`](https://cpprefjp.github.io/reference/thread/thread/detach.html) を呼び出さなければならない（特別な事情がなければ `join` を使う）．
+* `usleep()`  は引数に数値で指定した時間 [μs] だけプログラムをブロッキング（停止）する関数（`1E6` は `1 * 10^6` という意味）．
+* 戻り値と引数の型がともに `void` の関数（`func1`，`func2`）を用意し，`std::thread` オブジェクトの作成時に引数として関数を渡すことで `func1()`，`func2()` を並列で実行できる．
+* `std::thread` のオブジェクトが破棄される前に [`std::thread::join`](https://cpprefjp.github.io/reference/thread/thread/join.html) か [`std::thread::detach`](https://cpprefjp.github.io/reference/thread/thread/detach.html) を呼び出さなければならない（特別な事情がなければ `join()` を使う）．
 
 # 2. 引数付きの関数を渡す（値渡し）
 ### main.cpp
@@ -114,8 +114,8 @@ func1
 func1
 
 ```
-* `size_t num, size_t duration, std::string str` を引数に持つ関数 `func` が定義されている．
-* `std::thread` のオブジェクトを作成するときに一つ目の引数に関数（`func`）を渡し，二つ目以降の引数に `func` の引数を渡す．
+* `size_t num, size_t duration, std::string str` を引数に持つ関数 `func()` が定義されている．
+* `std::thread` のオブジェクトを作成するときに一つ目の引数に関数（`func()`）を渡し，二つ目以降の引数に `func()` の引数を渡す．
 
 # 3. 引数付きの関数を渡す（参照渡し）
 ### main.cpp
@@ -124,10 +124,10 @@ func1
 #include <string>
 #include <thread>
 #include <unistd.h>                      /* usleep */
-#include "../../share/inc/_thread.hpp"   /* jibiki::ShareVal */
+#include "../../share/inc/_thread.hpp"   /* jibiki::ShareVar */
 #include "../../share/inc/_std_func.hpp" /* jibiki::kbhit */
 
-void func(jibiki::ShareVal<bool> &exit_flag)
+void func(jibiki::ShareVar<bool> &exit_flag)
 {
     while (1)
     {
@@ -141,7 +141,7 @@ void func(jibiki::ShareVal<bool> &exit_flag)
 int main(void)
 {
     /* 終了フラグ */
-    jibiki::ShareVal<bool> exit_flag(false);
+    jibiki::ShareVar<bool> exit_flag(false);
 
     /* スレッドを作成 */
     std::thread t1(func, std::ref(exit_flag));
@@ -177,11 +177,11 @@ kbhit
 func
 
 ```
-* 引数に参照を持つ関数をスレッドに渡すときは，`std::ref` をつける．
-* [`jibiki::ShareVal`](../_thread/overview.md/#jibikiShareVal) は内部で排他制御を行ってデータ競合を防ぎ，スレッド間で変数を共有できるようにするクラス．
-* `jibiki::kbhit` はキー入力を受け付ける関数で，キー入力があれば `true` を返す．
+* 引数に参照を持つ関数をスレッドに渡すときは，`std::ref()` をつける．
+* [`jibiki::ShareVar`](../_thread/overview.md/#jibikiShareVar) は内部で排他制御を行ってデータ競合を防ぎ，スレッド間で変数を共有できるようにするクラス．
+* `jibiki::kbhit()` はキー入力を受け付ける関数で，キー入力があれば `true` を返す．
 * このように参照を使うことでスレッドを外部から終了させることができる．
-* 実行結果に関して，`"kbhit"` が出力された後にも `"func"` が出力されているのは `func` 中で `usleep` が呼び出されており，`exit_flag` が `true` になってもすぐに無限ループを抜ける処理に入らないため．
+* 実行結果に関して，`"kbhit"` が出力された後にも `"func"` が出力されているのは `func()` 中で `usleep()`  が呼び出されており，`exit_flag` が `true` になってもすぐに無限ループを抜ける処理に入らないため．
 
 # 4. （発展）メンバ関数を渡す
 ### main.cpp

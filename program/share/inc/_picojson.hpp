@@ -25,8 +25,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _picojson_hpp
-#define _picojson_hpp
+#ifndef picojson_hpp
+#define picojson_hpp
 
 #include <algorithm>
 #include <cstdio>

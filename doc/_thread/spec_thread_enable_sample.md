@@ -1,6 +1,7 @@
 # jibiki::thread ::enable サンプル
 [戻る](spec_thread.md/#jibikithread-enable)
 
+# 目次
 1. [基本的な機能](#例１基本的な機能)
 2. [実用的な使い方](#例２実用的な使い方)
 
@@ -37,7 +38,7 @@ $ ./all.out
 test1 : 1
 test2 : 0
 ```
-* `setting.json` の値が `jibiki::thread::enable` の戻り値として返ってくる．
+* `setting.json` の値が `jibiki::thread::enable()` の戻り値として返ってくる．
 * JSON ファイルの `"thread"` の文字列は固定．
 * JSON ファイルから値を読み込む処理を省くことができる．
 * 実際には以下（例２）に示す使い方をする．
@@ -53,7 +54,7 @@ test2 : 0
 #include "../../share/inc/_std_func.hpp" /* キー入力 */
 #include "../../share/inc/_thread.hpp"
 
-void func1(jibiki::ShareVal<bool> &exit_flag)
+void func1(jibiki::ShareVar<bool> &exit_flag)
 {
     try
     {
@@ -87,7 +88,7 @@ void func1(jibiki::ShareVal<bool> &exit_flag)
     }
 }
 
-void func2(jibiki::ShareVal<bool> &exit_flag)
+void func2(jibiki::ShareVar<bool> &exit_flag)
 {
     try
     {
@@ -114,7 +115,7 @@ void func2(jibiki::ShareVal<bool> &exit_flag)
 
 int main(void)
 {
-    jibiki::ShareVal<bool> exit_flag; /* 終了フラグ */
+    jibiki::ShareVar<bool> exit_flag; /* 終了フラグ */
 
     std::thread t1(func1, std::ref(exit_flag));
     std::thread t2(func2, std::ref(exit_flag));
@@ -136,5 +137,5 @@ int main(void)
 }
 ```
 * `setting.json` の `testx` （x：1 or 2）に対応する値が
-    * `true` であれば `funcx` を実行するスレッドが実行され続け，一秒おきに `"hellox"` が出力される．
-    * `false` であれば `funcx` を実行するスレッドはすぐに終了する．
+    * `true` であれば `funcx()` を実行するスレッドが実行され続け，一秒おきに `"hellox"` が出力される．
+    * `false` であれば `funcx()` を実行するスレッドはすぐに終了する．

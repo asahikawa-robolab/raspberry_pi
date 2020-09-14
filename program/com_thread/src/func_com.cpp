@@ -1,12 +1,12 @@
 #include "../../share/inc/_serial_communication.hpp"
 #include "../../share/inc/_picojson.hpp"
-#include "../inc/module.hpp"
+#include "../../share/inc/module.hpp"
 
 /* 外部変数 */
-extern jibiki::ShareVal<short> g_angle;
+extern jibiki::ShareVar<short> g_angle;
 extern SwitchData g_switch_data;
-extern ImuData g_imu_data;
-extern ControllerData g_controller_data;
+extern Imu g_imu;
+extern Controller g_controller;
 
 void com_rot_control(std::string path, std::string name)
 {
@@ -38,7 +38,7 @@ void com_switch(std::string path, std::string name)
         com.send();
 
         /* 受信データを読み込ませる */
-        g_switch_data.set(com.rx(0), com.rx(1), com.rx(2));
+        g_switch_data.set(com);
     }
 }
 
@@ -51,7 +51,7 @@ void com_imu(std::string path, std::string name)
     {
         double angle =
             jibiki::deg_rad(jibiki::asbl(com.rx(0), com.rx(1)) / 10.0);
-        g_imu_data.write_raw_data(angle);
+        g_imu.write_raw_data(angle);
     }
 }
 
@@ -60,9 +60,5 @@ void com_controller(std::string path, std::string name)
     static jibiki::ParamCom com(path, 0, 8, B57600, name, false);
 
     if (com.receive())
-    {
-        /* 受信データを読み込ませる */
-        g_controller_data.set(com.rx(0), com.rx(1), com.rx(2), com.rx(3),
-                              com.rx(4), com.rx(5), com.rx(6), com.rx(7));
-    }
+        g_controller.set(com); /* 受信データを読み込ませる */
 }

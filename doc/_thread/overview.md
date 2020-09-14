@@ -3,21 +3,20 @@
 
 # 概要
 * `std::thread` を用いて行う並列処理を補助するクラスをまとめたもの．
-    * ２つのクラス `jibiki::ShareVal`，`jibiki::ShareValVec` と１つの名前空間 `jibiki::thread` が含まれる．
-* `jibiki::ShareVal` と `jibiki::ShareValVec` は[排他制御](#排他制御)を提供するクラス．
-* `jibiki::ShareVal` は将来的に `std::atomic` に置き換える予定．
+    * ２つのクラス `jibiki::ShareVar`，`jibiki::ShareVarVec` と１つの名前空間 `jibiki::thread` が含まれる．
+* `jibiki::ShareVar` と `jibiki::ShareVarVec` は[排他制御](#排他制御)を提供するクラス．
+* `jibiki::ShareVar` は将来的に `std::atomic` に置き換える予定．
 
-# jibiki::ShareVal
+# jibiki::ShareVar
 * 内部で[排他制御](#排他制御)を行ってデータを管理し，スレッドセーフを保証する（データ競合が発生しない）クラス．
 * **異なるスレッド間で変数を共有するときには必須．**
 * POD 型※や列挙型，`std::string` などが使用できる．
 * STL のコンテナクラス（`std::vector` や `std::map` など）は使用できない．
-* `std::vector` を使用したい場合は疑似的に `std::vector` を再現したクラスである [`jibiki::ShareValVel`](#jibikiShareValVec) を使用する．
+* `std::vector` を使用したい場合は疑似的に `std::vector` を再現したクラスである [`jibiki::ShareVarVel`](#jibikiShareVarVec) を使用する．
 
 ※POD（Plain Old Data）型：`int`，`float` 等のいわゆるプレーンな古い型
-
-### [クイックスタート](quick_share_val.md)
-
+### [クイックスタート](quick_share_var.md)
+### JSON：:x:
 ### メンバ関数
 |名前|説明|
 |:-|:-|
@@ -25,16 +24,16 @@
 |operator=|代入演算子|
 |operator+=|複合代入演算子（加算）|
 |operator-=|複合代入演算子（減算）|
+|operator^=|複合代入演算子（XOR）|
 |read|値を読み出す|
 |test_lock|指定時間ロックをかける|
 
-# jibiki::ShareValVec
+# jibiki::ShareVarVec
 * 内部で[排他制御](#排他制御)を行ってデータを管理し，スレッドセーフを保証する（データ競合が発生しない）クラス．
-* `jibiki::ShareVal` で使用できない `std::vector` を疑似的に再現したクラス．
+* `jibiki::ShareVar` で使用できない `std::vector` を疑似的に再現したクラス．
 * 基本的な使い方は `std::vector` と同様．
-
-### [クイックスタート](quick_share_val_vec.md)
-
+### [クイックスタート](quick_share_var_vec.md)
+### JSON：:x:
 ### メンバ関数
 |名前|説明|
 |:-|:-|
@@ -48,13 +47,11 @@
 
 # jibiki::thread
 スレッドの管理を補助する関数群．
-
 ### メンバ関数
-|名前|説明|
-|:-|:-|
-|[manage](spec_thread.md/#jibikithread-manage)|スレッドの終了，一時停止を管理する|
-|[enable](spec_thread.md/#jibikithread-enable)|スレッドを実行するかどうかを JSON ファイルで管理できるようにする|
-
+|名前|説明|JSON|
+|:-|:-|:-:|
+|[manage](spec_thread.md/#jibikithread-manage)|スレッドの終了，一時停止を管理する|:x:|
+|[enable](spec_thread.md/#jibikithread-enable)|スレッドを実行するかどうかを JSON ファイルで管理できるようにする|:o:|
 ### メンバ型
 |名前|説明|
 |:-|:-|
@@ -67,8 +64,5 @@
     * 少なくとも一方が変更（modify）操作であり，
     * 異なるスレッド上から同時に行われるとき．
 * 並列処理を行う際にはデータ競合を回避するために，同一変数へのアクセスが同時に生じないように制御（**排他制御**）する必要がある．
-
-
-
 
 参考：[スレッドセーフという幻想と現実 - yohhoyの日記（別館）](https://yohhoy.hatenablog.jp/entry/2013/12/15/204116)

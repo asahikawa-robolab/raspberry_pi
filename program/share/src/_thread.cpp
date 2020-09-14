@@ -1,9 +1,3 @@
-/*-----------------------------------------------
- *
-* Last updated : 2020/09/05, 01:19
- * Author       : Takuto Jibiki
- *
------------------------------------------------*/
 #include <unistd.h>
 #include "../inc/_thread.hpp"
 #include "../inc/_picojson.hpp"
@@ -13,11 +7,11 @@ namespace jibiki
 {
     namespace thread
     {
-        bool manage(ShareVal<bool> &exit_flag,
-                    ShareVal<OperateMethod> &current_method,
+        bool manage(ShareVar<bool> &exit_flag,
+                    ShareVar<OperateMethod> &current_method,
                     OperateMethod my_method)
         {
-            /* operate_flag と operate_method が一致するまで待機 */
+            /* current_method と my_method が一致するまで待機 */
             while ((my_method != current_method.read()) & !exit_flag.read())
                 usleep(10);
 
@@ -30,9 +24,9 @@ namespace jibiki
 
             return true;
         }
-        bool manage(ShareVal<bool> &exit_flag)
+        bool manage(ShareVar<bool> &exit_flag)
         {
-            ShareVal<OperateMethod> current_method;
+            ShareVar<OperateMethod> current_method(OPERATE_NONE);
             return manage(exit_flag, current_method, OPERATE_NONE);
         }
 
@@ -44,8 +38,8 @@ namespace jibiki
             using picojson::array;
             using picojson::object;
 
-            picojson::value json_value = load_json_file(json_path);
-            object &json_obj = json_value
+            picojson::value json_val = load_json_file(json_path);
+            object &json_obj = json_val
                                    .get<object>()["thread"]
                                    .get<object>();
 

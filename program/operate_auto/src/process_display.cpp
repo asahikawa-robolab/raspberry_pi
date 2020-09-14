@@ -3,9 +3,9 @@
 
 const cv::Size g_window_size(450, 420);
 
-void process_display(jibiki::ShareVal<bool> &exit_flag,
-                     jibiki::ShareVal<int> &pushed_key,
-                     jibiki::ShareValVec<std::string> &executing_order)
+void process_display(jibiki::ShareVar<bool> &exit_flag,
+                     jibiki::ShareVar<int> &pushed_key,
+                     jibiki::ShareVarVec<std::string> &executing_order)
 {
     if (!jibiki::thread::enable("display"))
         return;

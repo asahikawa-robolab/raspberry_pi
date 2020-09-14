@@ -1,9 +1,3 @@
-/*-----------------------------------------------
- *
-* Last updated : 2020/09/03, 03:15
- * Author       : Takuto Jibiki
- *
------------------------------------------------*/
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -16,43 +10,35 @@
 namespace jibiki
 {
     /*-----------------------------------------------
-     *
-     * ProcOperateAuto::Order
-     *
+    *
+    * Order コンストラクタ
+    *
     -----------------------------------------------*/
-    ProcOperateAuto::Order::Order(size_t seq1,
-                                  size_t seq2,
-                                  size_t seq3,
-                                  std::string name)
+    ProcOperateAuto::Order::Order(size_t seq1, size_t seq2, size_t seq3, std::string name)
     {
         m_seq[0] = seq1;
         m_seq[1] = seq2;
         m_seq[2] = seq3;
         m_name = name;
     }
-
     /*-----------------------------------------------
-     *
-     * ProcOperateAuto
-     *
+    *
+    * 初期化
+    *
     -----------------------------------------------*/
-
-    /* 初期化 */
-    void ProcOperateAuto::
-        init(ShareVal<bool> &exit_flag,
-             ShareVal<bool> &start_flag,
-             ShareVal<bool> &reset_flag,
-             ShareVal<thread::OperateMethod> &current_method,
-             ShareVal<std::string> &execute_orders,
-             ShareValVec<std::string> &executing_order,
-             std::vector<ModeFunc> mode_func,
-             bool is_print,
-             std::string json_path)
+    void ProcOperateAuto::init(ShareVar<bool> &exit_flag,
+                               ShareVar<bool> &start_flag,
+                               ShareVar<bool> &reset_flag,
+                               ShareVar<thread::OperateMethod> &current_method,
+                               ShareVar<std::string> &execute_orders,
+                               ShareVarVec<std::string> &executing_order,
+                               std::vector<ModeFunc> mode_func,
+                               bool is_print,
+                               std::string json_path)
     {
         /* using 宣言 */
         using picojson::array;
         using picojson::object;
-
         /* 初期化 */
         m_control_data.m_exit_flag = &exit_flag;
         m_control_data.m_start_flag = &start_flag;
@@ -62,31 +48,31 @@ namespace jibiki
         m_executing_order = &executing_order;
         m_mode_func = mode_func;
         m_is_print = is_print;
-
         /* m_modes に値を設定 */
-        picojson::value json_value = load_json_file(json_path);
-        array &mode_list_array = json_value
+        picojson::value json_val = load_json_file(json_path);
+        array &mode_list_array = json_val
                                      .get<object>()["mode_list"]
                                      .get<array>();
         for (size_t i = 0; i < mode_list_array.size(); ++i)
             m_modes.push_back(mode_list_array[i].get<std::string>());
     }
-
-    /* orders を読み込む */
+    /*-----------------------------------------------
+    *
+    * orders を読み込む
+    *
+    -----------------------------------------------*/
     void ProcOperateAuto::load(void)
     {
         /* using 宣言 */
         using picojson::array;
         using picojson::object;
-
         /* json ファイルを picojson で読み込む */
-        picojson::value json_value =
+        picojson::value json_val =
             load_json_file("order.json");
-
         /*-----------------------------------------------
         orders を読み込む
         -----------------------------------------------*/
-        array &root_array = json_value
+        array &root_array = json_val
                                 .get<object>()[m_execute_orders->read().c_str()]
                                 .get<array>();
         for (size_t i = 0; i < root_array.size(); ++i)
@@ -107,9 +93,7 @@ namespace jibiki
                                      .get<object>()["param"]
                                      .get<array>();
             for (size_t j = 0; j < param_array.size(); ++j)
-                tmp.m_param.push_back(param_array[j]
-                                          .get<std::string>());
-
+                tmp.m_param.push_back(param_array[j].get<std::string>());
             /* name */
             tmp.m_name = root_array[i]
                              .get<object>()["name"]
@@ -118,8 +102,11 @@ namespace jibiki
             m_orders.emplace_back(tmp);
         }
     }
-
-    /* order を表示 */
+    /*-----------------------------------------------
+    *
+    * order を表示
+    *
+    -----------------------------------------------*/
     void ProcOperateAuto::print(void)
     {
         std::cout << "-------------------------------" << std::endl;
@@ -137,25 +124,21 @@ namespace jibiki
         }
         std::cout << "-------------------------------" << std::endl;
     }
-
     /*-----------------------------------------------
-     *
-     * Order のリストに従って実行
-     *
+    *
+    * Order のリストに従って実行
+    *
     -----------------------------------------------*/
     void ProcOperateAuto::execute(void)
     {
         std::cout << "*** orders start ["
                   << m_execute_orders->read() << "] ***" << std::endl;
-
         for (size_t i = 0; i <= find(); ++i)
         {
             if (!manage_thread_int())
                 break;
-
             size_t branch_num = find(i) + 1;       /* 分岐の数 */
             m_executing_order->resize(branch_num); /* executing_order を準備 */
-
             /*-----------------------------------------------
             枝の数だけ branch() を実行
             -----------------------------------------------*/
@@ -168,7 +151,6 @@ namespace jibiki
                               std::ref(finish_flag[j]), i, j);
                 t.detach();
             }
-
             /*-----------------------------------------------
             全てのスレッドの処理が終了するまで待機
             -----------------------------------------------*/
@@ -180,7 +162,6 @@ namespace jibiki
                     break;
             }
         }
-
         /* 終了処理 */
         m_executing_order->clear();
         if (m_control_data.m_reset_flag->read())
@@ -194,11 +175,10 @@ namespace jibiki
                       << m_execute_orders->read() << "] ***" << std::endl;
         m_orders.clear();
     }
-
     /*-----------------------------------------------
-     *
-     * 分岐した枝毎の処理
-     *
+    *
+    * 分岐した枝毎の処理
+    *
     -----------------------------------------------*/
     void ProcOperateAuto::branch(uint8_t &finish_flag, size_t seq1, size_t seq2)
     {
@@ -206,7 +186,6 @@ namespace jibiki
         {
             /* 要素数を取得 */
             size_t element_num = find(seq1, seq2) + 1;
-
             /*-----------------------------------------------
             Order を順次実行
             -----------------------------------------------*/
@@ -215,10 +194,8 @@ namespace jibiki
                 /* スレッドの終了 */
                 if (!(manage_thread_int()))
                     break;
-
                 /* Order のインデックスを取得 */
                 size_t order_index = find(seq1, seq2, seq3);
-
                 /* order の mode の index を探す */
                 auto itr = std::find(m_modes.begin(),
                                      m_modes.end(),
@@ -232,14 +209,12 @@ namespace jibiki
                     throw sstr.str();
                 }
                 size_t mode_index = itr - m_modes.begin();
-
                 /* order を実行 */
                 size_t seq[] = {seq1, seq2, seq3};
                 m_mode_func[mode_index](this,
                                         m_orders[order_index].m_param,
                                         seq);
             }
-
             /* スレッドが終了したことを通知する */
             finish_flag = 1;
         }
@@ -259,8 +234,11 @@ namespace jibiki
             return;
         }
     }
-
-    /* 引数に指定した seq と一致する list のインデックスを返す */
+    /*-----------------------------------------------
+    *
+    * 引数に指定した seq と一致する list のインデックスを返す
+    *
+    -----------------------------------------------*/
     size_t ProcOperateAuto::find(size_t seq1, size_t seq2, size_t seq3)
     {
         for (size_t i = 0; i < m_orders.size(); ++i)
@@ -271,7 +249,6 @@ namespace jibiki
             if (_1 & _2 & _3)
                 return i;
         }
-
         /* １つも見つからなかった場合 */
         std::stringstream sstr;
         sstr << __PRETTY_FUNCTION__ << std::endl
@@ -279,8 +256,11 @@ namespace jibiki
              << "seq3 : " << seq3 << std::endl;
         throw sstr.str();
     }
-
-    /* 引数で指定した seq において，seq3 の最大値を返す */
+    /*-----------------------------------------------
+    *
+    * 引数で指定した seq において，seq3 の最大値を返す
+    *
+    -----------------------------------------------*/
     size_t ProcOperateAuto::find(size_t seq1, size_t seq2)
     {
         bool is_found = false;
@@ -306,8 +286,11 @@ namespace jibiki
         }
         return max;
     }
-
-    /* 引数で指定した seq において，seq2 の最大値を返す */
+    /*-----------------------------------------------
+    *
+    * 引数で指定した seq において，seq2 の最大値を返す
+    *
+    -----------------------------------------------*/
     size_t ProcOperateAuto::find(size_t seq1)
     {
         bool is_found = false;
@@ -330,11 +313,13 @@ namespace jibiki
                  << "seq1 : " << seq1 << std::endl;
             throw sstr.str();
         }
-
         return max;
     }
-
-    /* seq1 の最大値を取得 */
+    /*-----------------------------------------------
+    *
+    * seq1 の最大値を取得
+    *
+    -----------------------------------------------*/
     size_t ProcOperateAuto::find(void)
     {
         size_t max = 0;
@@ -343,27 +328,34 @@ namespace jibiki
                 max = i.m_seq[0];
         return max;
     }
-
+    /*-----------------------------------------------
+    *
+    * ProcOperateAuto コンストラクタ
+    *
+    -----------------------------------------------*/
     ProcOperateAuto::
-        ProcOperateAuto(ShareVal<bool> &exit_flag,
-                        ShareVal<bool> &start_flag,
-                        ShareVal<bool> &reset_flag,
-                        ShareVal<thread::OperateMethod> &current_method,
-                        ShareVal<std::string> &execute_orders,
-                        ShareValVec<std::string> &executing_order,
+        ProcOperateAuto(ShareVar<bool> &exit_flag,
+                        ShareVar<bool> &start_flag,
+                        ShareVar<bool> &reset_flag,
+                        ShareVar<thread::OperateMethod> &current_method,
+                        ShareVar<std::string> &execute_orders,
+                        ShareVarVec<std::string> &executing_order,
                         std::vector<ModeFunc> mode_func,
                         bool is_print,
                         std::string json_path)
     {
         init(exit_flag, start_flag, reset_flag, current_method,
              execute_orders, executing_order, mode_func, is_print, json_path);
-
         std::thread t([this] {
             this->launch();
         });
         m_t = std::move(t);
     }
-
+    /*-----------------------------------------------
+    *
+    * スレッド内部で実行する処理
+    *
+    -----------------------------------------------*/
     void ProcOperateAuto::launch(void)
     {
         try
@@ -371,7 +363,6 @@ namespace jibiki
             /* スレッドの実行の管理 */
             if (!thread::enable("operate_auto"))
                 return;
-
             while (manage_thread_int(false))
             {
                 if (m_control_data.m_start_flag->read() &
@@ -401,25 +392,41 @@ namespace jibiki
             return;
         }
     }
-
+    /*-----------------------------------------------
+    *
+    * jibiki::thread::manage を内部で呼び出す
+    *
+    -----------------------------------------------*/
     bool ProcOperateAuto::manage_thread_int(bool use_reset_flag)
     {
         bool f1 = thread::manage(*m_control_data.m_exit_flag,
                                  *m_control_data.m_current_method,
                                  thread::OPERATE_AUTO);
         bool f2 = !m_control_data.m_reset_flag->read();
-
         if (use_reset_flag)
             return f1 & f2;
         else
             return f1;
     }
-
+    /*-----------------------------------------------
+    *
+    * executing_order に文字列を設定する
+    *
+    -----------------------------------------------*/
     void ProcOperateAuto::set_executing_order(size_t seq[], std::string str)
     {
         std::stringstream sstr;
         sstr << "[ " << seq[0] << ", "
              << seq[1] << ", " << seq[2] << " ] " << str;
         m_executing_order->write(seq[1], sstr.str());
+    }
+    /*-----------------------------------------------
+    *
+    * executing_order をクリア（初期化）する
+    *
+    -----------------------------------------------*/
+    void ProcOperateAuto::clear_executing_order(size_t seq[])
+    {
+        m_executing_order->write(seq[1], "");
     }
 } // namespace jibiki

@@ -1,9 +1,3 @@
-/*-----------------------------------------------
- *
- * Last updated : 2020/09/03, 03:15
- * Author       : Takuto Jibiki
- *
------------------------------------------------*/
 #include <stdlib.h>
 #include <vector>
 #include <sys/select.h>
@@ -414,8 +408,8 @@ namespace jibiki
 		}
 
 		/* json ファイルから読み込む */
-		picojson::value json_value = load_json_file(json_path);
-		array &param_array = json_value.get<object>()[m_name]
+		picojson::value json_val = load_json_file(json_path);
+		array &param_array = json_val.get<object>()[m_name]
 								 .get<array>();
 
 		/* パラメータを抽出 */
@@ -492,7 +486,7 @@ namespace jibiki
 	 * コンストラクタ
 	 *
 	-----------------------------------------------*/
-	ProcParamCom::ProcParamCom(ShareVal<bool> &exit_flag,
+	ProcParamCom::ProcParamCom(ShareVar<bool> &exit_flag,
 							   std::vector<ProcParamCom::ComFunc> com_func,
 							   std::string json_path)
 	{
@@ -504,7 +498,7 @@ namespace jibiki
 		m_t = std::move(t);
 	}
 
-	void ProcParamCom::init(ShareVal<bool> &exit_flag,
+	void ProcParamCom::init(ShareVar<bool> &exit_flag,
 							std::vector<ComFunc> com_func,
 							std::string json_path)
 	{
@@ -555,8 +549,8 @@ namespace jibiki
 		using picojson::object;
 
 		/* JSON ファイルを開く */
-		picojson::value json_value = load_json_file(m_json_path);
-		array &root_array = json_value
+		picojson::value json_val = load_json_file(m_json_path);
+		array &root_array = json_val
 								.get<object>()["com"]
 								.get<array>();
 

@@ -1,11 +1,11 @@
 #include "../../share/inc/_thread.hpp"
 #include "../../share/inc/_std_func.hpp"
 
-void thread_kbhit(jibiki::ShareVal<bool> &exit_flag,
-                  jibiki::ShareVal<bool> &start_flag,
-                  jibiki::ShareVal<bool> &reset_flag,
-                  jibiki::ShareVal<int> &pushed_key,
-                  jibiki::ShareValVec<std::string> &executing_order)
+void thread_kbhit(jibiki::ShareVar<bool> &exit_flag,
+                  jibiki::ShareVar<bool> &start_flag,
+                  jibiki::ShareVar<bool> &reset_flag,
+                  jibiki::ShareVar<int> &pushed_key,
+                  jibiki::ShareVarVec<std::string> &executing_order)
 {
     if (!jibiki::thread::enable("kbhit"))
         return;
@@ -18,23 +18,17 @@ void thread_kbhit(jibiki::ShareVal<bool> &exit_flag,
         switch (pushed_key.read())
         {
         case 's':
-            start_flag = start_flag.read() ^ 1;
-            // std::cout << "start : " << start_flag.read() << std::endl;
+            start_flag ^= 1;
             break;
         case 'r':
-            reset_flag = reset_flag.read() ^ 1;
-            // std::cout << "reset : " << reset_flag.read() << std::endl;
-            break;
-        case 'p':
-            for (size_t i = 0; i < executing_order.size(); ++i)
-                std::cout << "\t\t" << executing_order.read(i) << std::endl;
+            reset_flag ^= 1;
             break;
         case 'q':
             exit_flag = true;
             break;
         }
 
-        if (pushed_key.read() != 0)
-            pushed_key = 0;
+        if (pushed_key.read() != -1)
+            pushed_key = -1;
     }
 }

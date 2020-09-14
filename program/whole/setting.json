@@ -1,0 +1,40 @@
+{
+    "thread": {
+        "operate_auto": true,
+        "kbhit" : true,
+        "display" : true,
+        "com": false,
+        "manual": true
+    },
+    "com": [
+        ["rot",        true,    "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LQ-if00-port0"],
+        ["chassis_f",  true,    "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LQ-if00-port0"],
+        ["chassis_b",  true,    "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LQ-if00-port0"],
+        ["switch",     true,    "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A906V9YT-if00-port0"],
+        ["imu",        true,    "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579AL-if00-port0"],
+        ["controller", true,    "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A906V99N-if00-port0"]
+    ],
+    "chassis": {
+        "max_rpm": 300,
+        "channel": {
+            "fr" : 0,
+            "fl" : 1,
+            "br" : 2,
+            "bl" : 3
+        },
+        "inverse": {
+            "fr": false,
+            "fl": false,
+            "br": false,
+            "bl": false            
+        },
+        "rotate": {
+            "min": 20,
+            "max": 50,
+            "kp": 60
+        }
+    },
+    "system": {
+        "calc_period_ms": 50
+    }
+}

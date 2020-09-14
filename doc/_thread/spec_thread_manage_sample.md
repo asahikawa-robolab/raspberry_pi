@@ -1,6 +1,7 @@
 # jibiki::thread ::manage サンプル
 [戻る](spec_thread.md/#jibikithread-manage)
 
+# 目次
 1. [基本的な使い方](#例１基本的な使い方)
 2. [多重ループ](#例２多重ループ)
 3. [操作方法を考慮（一時停止）](#例３操作方法を考慮一時停止)
@@ -12,7 +13,7 @@
 #include "../../share/inc/_std_func.hpp" /* キー入力 */
 #include "../../share/inc/_thread.hpp"
 
-void func1(jibiki::ShareVal<bool> &exit_flag)
+void func1(jibiki::ShareVar<bool> &exit_flag)
 {
     while (jibiki::thread::manage(exit_flag))
     {
@@ -29,7 +30,7 @@ void func1(jibiki::ShareVal<bool> &exit_flag)
     }
 }
 
-void func2(jibiki::ShareVal<bool> &exit_flag)
+void func2(jibiki::ShareVar<bool> &exit_flag)
 {
     while (jibiki::thread::manage(exit_flag))
     {
@@ -40,7 +41,7 @@ void func2(jibiki::ShareVal<bool> &exit_flag)
 
 int main(void)
 {
-    jibiki::ShareVal<bool> exit_flag(false); /* 終了フラグ */
+    jibiki::ShareVar<bool> exit_flag(false); /* 終了フラグ */
 
     std::thread t1(func1, std::ref(exit_flag));
     std::thread t2(func2, std::ref(exit_flag));
@@ -53,7 +54,7 @@ int main(void)
 ```
 * プログラムを実行すると１秒毎に `hello` が出力される．
 * キーボードの `q` を入力するとすべてのスレッドが終了し，プログラムも終了する．
-* `jibiki::thread::manage` を各スレッドのループで呼び出すことによって，`exit_flag` でスレッドを終了させることができるようになる．
+* `jibiki::thread::manage()` を各スレッドのループで呼び出すことによって，`exit_flag` でスレッドを終了させることができるようになる．
 
 # 例２）多重ループ
 ```C++
@@ -62,7 +63,7 @@ int main(void)
 #include "../../share/inc/_std_func.hpp" /* キー入力 */
 #include "../../share/inc/_thread.hpp"
 
-void func1(jibiki::ShareVal<bool> &exit_flag)
+void func1(jibiki::ShareVar<bool> &exit_flag)
 {
     while (jibiki::thread::manage(exit_flag))
     {
@@ -79,7 +80,7 @@ void func1(jibiki::ShareVal<bool> &exit_flag)
     }
 }
 
-void func2(jibiki::ShareVal<bool> &exit_flag)
+void func2(jibiki::ShareVar<bool> &exit_flag)
 {
     while (jibiki::thread::manage(exit_flag))
     {
@@ -96,7 +97,7 @@ void func2(jibiki::ShareVal<bool> &exit_flag)
 
 int main(void)
 {
-    jibiki::ShareVal<bool> exit_flag(false); /* 終了フラグ */
+    jibiki::ShareVar<bool> exit_flag(false); /* 終了フラグ */
 
     std::thread t1(func1, std::ref(exit_flag));
     std::thread t2(func2, std::ref(exit_flag));
@@ -107,13 +108,13 @@ int main(void)
     return 0;
 }
 ```
-* 例１の `func2` の `while` 内に `for` によるループが追加されている．
+* 例１の `func2()` の `while` 内に `for` によるループが追加されている．
 * プログラムを実行すると１秒毎に `x / 5` が出力される（x：1～5）．
 * キーボードの `q` を入力するとすべてのスレッドが終了し，プログラムも終了する．
-* スレッド内に多重ループがある場合は１つのループにつき `jibiki::thread::manage` が１個必要．
-    * 二重ループだったら `jibiki::thread::manage` が２個，三重ループだったら３個必要になる．
-    * 要するに<u>**`jibki::thread::manage` の戻り値として `false` が帰ってきたら直ちにループを抜けるようにすればよい．**</u>
-    * もしも `func2` の `for` 内部の `jibiki::thread::manage` が無ければ，キーボードの `q` を入力しても 5 までカウントし終わるまでプログラムは終了しなくなってしまう．
+* スレッド内に多重ループがある場合は１つのループにつき `jibiki::thread::manage()` が１個必要．
+    * 二重ループだったら `jibiki::thread::manage()` が２個，三重ループだったら３個必要になる．
+    * 要するに<u>**`jibki::thread::manage()` の戻り値として `false` が帰ってきたら直ちにループを抜けるようにすればよい．**</u>
+    * もしも `func2` の `for` 内部の `jibiki::thread::manage()` が無ければ，キーボードの `q` を入力しても 5 までカウントし終わるまでプログラムは終了しなくなってしまう．
 
 # 例３）操作方法を考慮（一時停止）
 ```C++
@@ -124,8 +125,8 @@ int main(void)
 #include "../../share/inc/_thread.hpp"
 
 void process_operate_manual(
-    jibiki::ShareVal<bool> &exit_flag,
-    jibiki::ShareVal<jibiki::thread::OperateMethod> &current_method)
+    jibiki::ShareVar<bool> &exit_flag,
+    jibiki::ShareVar<jibiki::thread::OperateMethod> &current_method)
 {
     while (jibiki::thread::manage(exit_flag,
                                   current_method,
@@ -138,8 +139,8 @@ void process_operate_manual(
 }
 
 void process_operate_auto(
-    jibiki::ShareVal<bool> &exit_flag,
-    jibiki::ShareVal<jibiki::thread::OperateMethod> &current_method)
+    jibiki::ShareVar<bool> &exit_flag,
+    jibiki::ShareVar<jibiki::thread::OperateMethod> &current_method)
 {
     while (jibiki::thread::manage(exit_flag,
                                   current_method,
@@ -152,8 +153,8 @@ void process_operate_auto(
 }
 
 void process_keyboard(
-    jibiki::ShareVal<bool> &exit_flag,
-    jibiki::ShareVal<jibiki::thread::OperateMethod> &current_method)
+    jibiki::ShareVar<bool> &exit_flag,
+    jibiki::ShareVar<jibiki::thread::OperateMethod> &current_method)
 {
     while (jibiki::thread::manage(exit_flag))
     {
@@ -179,8 +180,8 @@ void process_keyboard(
 
 int main(void)
 {
-    jibiki::ShareVal<bool> exit_flag(false);        /* 終了フラグ */
-    jibiki::ShareVal<jibiki::thread::OperateMethod> /* 現在使用している操作方法 */
+    jibiki::ShareVar<bool> exit_flag(false);        /* 終了フラグ */
+    jibiki::ShareVar<jibiki::thread::OperateMethod> /* 現在使用している操作方法 */
         current_method(jibiki::thread::OPERATE_MANUAL);
 
     /* 手動制御の処理を行うスレッド */
@@ -214,7 +215,7 @@ int main(void)
         * `process_operate_auto` を実行しているスレッドを実行し，
         * `"operate_auto"` を１秒おきに出力する．
     * (c). `process_keyboard` を実行しているスレッドは `current_method` の値に関係なく常に実行される．
-* これらの動作の違いは各スレッドのループで呼び出す `jibiki::thread::manage` の引数の違いによって生じている．
+* これらの動作の違いは各スレッドのループで呼び出す `jibiki::thread::manage()` の引数の違いによって生じている．
     * (a). `my_method` に `jibiki::thread::OPERATE_MANUAL` を指定．
     * (b). `my_method` に `jibiki::thread::OPERATE_AUTO` を指定．
     * (c). `my_method`，`current_method` を省略して `exit_flag` のみ指定．

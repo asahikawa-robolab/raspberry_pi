@@ -10,9 +10,9 @@ int main(void)
             "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579S8-if00-port0",
             2, 0, B57600, "solenoid_valve", false);
 
-        jibiki::ShareVal<int8_t> valve_value[2];
-        valve_value[0] = 0;
-        valve_value[1] = 0;
+        jibiki::ShareVar<int8_t> valve_val[2];
+        valve_val[0] = 0;
+        valve_val[1] = 0;
 
         while (1)
         {
@@ -22,24 +22,24 @@ int main(void)
                 switch (getchar())
                 {
                 case 'u':
-                    valve_value[0] = 0b01111111;
-                    valve_value[1] = 0b01111111;
+                    valve_val[0] = 0b01111111;
+                    valve_val[1] = 0b01111111;
                     break;
                 case 'd':
-                    valve_value[0] = 0;
-                    valve_value[1] = 0;
+                    valve_val[0] = 0;
+                    valve_val[1] = 0;
                     break;
                 case 'q':
                     return 0;
                 }
                 printf("%u, %u\n",
-                       valve_value[0].read(),
-                       valve_value[1].read());
+                       valve_val[0].read(),
+                       valve_val[1].read());
             }
 
             /* 送信 */
-            com.tx(0) = valve_value[0].read();
-            com.tx(1) = valve_value[1].read();
+            com.tx(0) = valve_val[0].read();
+            com.tx(1) = valve_val[1].read();
             com.send();
         }
     }

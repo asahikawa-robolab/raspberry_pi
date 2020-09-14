@@ -12,7 +12,9 @@ RaspberryPi をマスターとしてスレーブを制御するためのライ�
 |com_solenoid_slave|solenoid_valve_slave と通信するサンプル|
 |com_switch|switch_slave と通信するサンプル|
 |com_thread|スレッドを使用して通信するサンプル|
+|dead_lock|std::mutex でデッドロックが発生するサンプル|
 |operate_auto|自動制御を行うサンプル|
+|whole|自動制御と手動制御の両方を行うサンプル|
 |share|RaspberryPi で利用するライブラリ|
 
 # ライブラリについて
@@ -22,7 +24,8 @@ RaspberryPi をマスターとしてスレーブを制御するためのライ�
 |_std_func|頻繁に使用する汎用的な処理|
 |_serial_communication|シリアル通信ライブラリ|
 |_thread|並列処理に関連するプログラム|
-|_utility|ロボットを制御する上で有用なプログラム．<br>足回りの制御や自動制御のプログラムが含まれる（予定）．|
+|_utility|ロボットを制御する上で有用なプログラム．<br>今のところ自動制御のプログラムのみ．|
+|module|ロボットに関する処理の中で汎用性の高いプログラムをまとめたもの|
 
 # リファレンス
 * _picojson
@@ -30,6 +33,7 @@ RaspberryPi をマスターとしてスレーブを制御するためのライ�
 * [_serial_communication](doc/_serial_communication/overview.md)
 * [_thread](doc/_thread/overview.md)
 * [_utility](doc/_utility/overview.md)
+* [module](doc/module/overview.md)
 
 <br>
 

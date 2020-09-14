@@ -1,9 +1,3 @@
-/*-----------------------------------------------
- *
- * Last updated : 2020/09/03, 03:15
- * Author       : Takuto Jibiki
- *
------------------------------------------------*/
 #ifndef _UTILITY_HPP
 #define _UTILITY_HPP
 
@@ -15,6 +9,11 @@
 
 namespace jibiki
 {
+    /*-----------------------------------------------
+    *
+    * ProcOperateAuto
+    *
+    -----------------------------------------------*/
     class ProcOperateAuto
     {
     private:
@@ -34,11 +33,11 @@ namespace jibiki
         /* スレッドを制御するデータをまとめたクラス */
         class ControlData
         {
-        public:
-            ShareVal<bool> *m_exit_flag;
-            ShareVal<bool> *m_start_flag;
-            ShareVal<bool> *m_reset_flag;
-            ShareVal<thread::OperateMethod> *m_current_method;
+        public:/* TODO : 参照で書き直す */
+            ShareVar<bool> *m_exit_flag;
+            ShareVar<bool> *m_start_flag;
+            ShareVar<bool> *m_reset_flag;
+            ShareVar<thread::OperateMethod> *m_current_method;
         };
 
     private:
@@ -50,18 +49,18 @@ namespace jibiki
         std::vector<Order> m_orders;                 /* 読み込んだ orders */
         std::vector<std::string> m_modes;            /* モードの一覧 */
         std::vector<ModeFunc> m_mode_func;           /* モードを実行する関数 */
-        ShareValVec<std::string> *m_executing_order; /* 実行中の order */
-        ShareVal<std::string> *m_execute_orders;     /* 実行する orders */
+        ShareVarVec<std::string> *m_executing_order; /* 実行中の order */
+        ShareVar<std::string> *m_execute_orders;     /* 実行する orders */
         bool m_is_print;                             /* 実行前に orders を表示するかどうか */
         std::thread m_t;
 
     private:
-        void init(ShareVal<bool> &exit_flag,
-                  ShareVal<bool> &start_flag,
-                  ShareVal<bool> &reset_flag,
-                  ShareVal<thread::OperateMethod> &current_method,
-                  ShareVal<std::string> &execute_orders,
-                  ShareValVec<std::string> &executing_order,
+        void init(ShareVar<bool> &exit_flag,
+                  ShareVar<bool> &start_flag,
+                  ShareVar<bool> &reset_flag,
+                  ShareVar<thread::OperateMethod> &current_method,
+                  ShareVar<std::string> &execute_orders,
+                  ShareVarVec<std::string> &executing_order,
                   std::vector<ModeFunc> mode_func,
                   bool is_print,
                   std::string json_path);
@@ -78,12 +77,12 @@ namespace jibiki
         size_t find(void);
 
     public:
-        ProcOperateAuto(ShareVal<bool> &exit_flag,
-                        ShareVal<bool> &start_flag,
-                        ShareVal<bool> &reset_flag,
-                        ShareVal<thread::OperateMethod> &current_method,
-                        ShareVal<std::string> &execute_orders,
-                        ShareValVec<std::string> &executing_order,
+        ProcOperateAuto(ShareVar<bool> &exit_flag,
+                        ShareVar<bool> &start_flag,
+                        ShareVar<bool> &reset_flag,
+                        ShareVar<thread::OperateMethod> &current_method,
+                        ShareVar<std::string> &execute_orders,
+                        ShareVarVec<std::string> &executing_order,
                         std::vector<ModeFunc> mode_func,
                         bool is_print = false,
                         std::string json_path = "order.json");
@@ -92,10 +91,6 @@ namespace jibiki
         void set_executing_order(size_t seq[], std::string str);
         void clear_executing_order(size_t seq[]);
     };
-    inline void ProcOperateAuto::clear_executing_order(size_t seq[])
-    {
-        m_executing_order->write(seq[1], "");
-    }
 } // namespace jibiki
 
 #endif

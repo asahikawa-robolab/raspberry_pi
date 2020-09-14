@@ -1,4 +1,4 @@
-# Last updated : 2020/02/06, 15:56
+# Last updated : 2020/09/16
 
 CC:=g++
 CFLAGS := -Wall -O2 -pthread	# -pthread : std::thread 用
@@ -23,13 +23,14 @@ SHARE_DEPS:=$(addprefix $(SHARE_OBJ_DIR)/, $(notdir $(SHARE_SRC:.cpp=.d)))
 INCLUDE:= -I $(INC_DIR) -I $(SHARE_INC_DIR)
 
 .PHONY: all
+.SILENT:
 all: $(OBJ) $(SHARE_OBJ)
 	$(CC) \
 	$(CFLAGS) \
 	$(LIBS) \
 	$(INCLUDE) \
 	$^ \
-	-o $@.out
+	-o $@.out > /dev/null
 
 -include $(DEPS) $(SHARE_DEPS)
 
@@ -40,7 +41,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(LIBS) \
 	$(INCLUDE) \
 	-c -MMD  -MP -MF $(@:%.o=%.d) $< \
-	-o $@
+	-o $@ > /dev/null
 
 $(SHARE_OBJ_DIR)/%.o: $(SHARE_SRC_DIR)/%.cpp
 	mkdir -p $(SHARE_OBJ_DIR)
@@ -49,7 +50,7 @@ $(SHARE_OBJ_DIR)/%.o: $(SHARE_SRC_DIR)/%.cpp
 	$(LIBS) \
 	$(INCLUDE) \
 	-c -MMD  -MP -MF $(@:%.o=%.d) $< \
-	-o $@
+	-o $@ > /dev/null
 
 
 .PHONY: clean

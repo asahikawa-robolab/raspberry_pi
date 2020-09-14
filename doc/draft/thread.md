@@ -12,21 +12,21 @@
 # thread で参照を渡す
 * thread で関数の引数に参照を渡すときは std::ref() が必要
 
-# ShareVal について
+# ShareVar について
 * mutex によるロックを行ってくれるクラス
-* 使用可能なメソッドは read, =, +=, -=
-    * 値を書き込む，変更するときは =, +=, -=
+* 使用可能なメソッドは read, =, +=, -=, ^=
+    * 値を書き込む，変更するときは =, +=, -=, ^=
     * 値を読み出すときは read を使用する
-    * =, +=, -= はオーバーロードを定義しているため，vscode においてエディタのテーマによっては通常とは違う色になる．
+    * =, +=, -=, ^= はオーバーロードを定義しているため，vscode においてエディタのテーマによっては通常とは違う色になる．
     * ++, -- などの演算子は定義していないため使用できない
-* サンプルとして jibiki::ShareVal<cv::Point2f> を載せる
+* サンプルとして jibiki::ShareVar<cv::Point2f> を載せる
     * g_odometry.x += 10;
     * g_odometry += cv::Point2f(10, 0);
-* g_imu_reset = g_imu_reset.read() ^ 1;
+* g_imu_reset ^= 1;
 
-# ShareValVec について
+# ShareVarVec について
 * mutex によるロックを行ってくれるクラス
-* ShareVal では使用できない std::vector で排他制御を行うクラス
+* ShareVar では使用できない std::vector で排他制御を行うクラス
 * テンプレート引数には vector の型を指定する
 * =, +=, -=, [] などの演算子は定義されていない
 
@@ -34,3 +34,6 @@
 * １つ目の引数は「&クラス名::メンバ関数名」
 * ２つ目の引数は「this」
 * [参考](https://qiita.com/tsuru3/items/c3e706ed77912f809cd2)
+
+# 参考資料
+* [std::atomic の参照](https://stackoverflow.com/questions/48551964/c-11-can-you-safely-pass-and-access-stdatomics-by-reference-in-different-thr)

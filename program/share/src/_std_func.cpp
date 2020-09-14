@@ -1,9 +1,3 @@
-/*-----------------------------------------------
- *
- * Last updated : 2020/08/23, 16:03
- * Author       : Takuto Jibiki
- *
------------------------------------------------*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -57,9 +51,9 @@ int kbhit(void)
  * 現在時刻の取得
  *
 -----------------------------------------------*/
-struct timespec get_time(void)
+timespec get_time(void)
 {
-    struct timespec tmp;
+    timespec tmp;
     timespec_get(&tmp, TIME_UTC);
     return tmp;
 }
@@ -89,10 +83,6 @@ std::vector<std::string> split(const std::string &str, char sep)
 -----------------------------------------------*/
 picojson::value load_json_file(std::string path)
 {
-    /* using 宣言 */
-    using picojson::array;
-    using picojson::object;
-
     /* ファイルを読み込む */
     std::ifstream file(path, std::ios::in);
     if (file.fail())
@@ -108,8 +98,8 @@ picojson::value load_json_file(std::string path)
     file.close();
 
     /* 解析 */
-    picojson::value json_value;
-    const std::string err = picojson::parse(json_value, str_raw);
+    picojson::value json_val;
+    const std::string err = picojson::parse(json_val, str_raw);
     if (!err.empty())
     {
         std::stringstream sstr;
@@ -118,7 +108,7 @@ picojson::value load_json_file(std::string path)
         throw sstr.str();
     }
 
-    return json_value;
+    return json_val;
 }
 
 } // namespace jibiki
