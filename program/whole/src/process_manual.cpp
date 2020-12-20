@@ -32,19 +32,10 @@ void thread_manual(jibiki::ShareVar<bool> &exit_flag,
                 g_chassis.m_spin = jibiki::deg_rad(-90);
         }
     }
-    catch (std::string err)
+    catch (const std::exception &e)
     {
-        std::cout << "*** error ***\n"
-                  << err << std::endl;
+        jibiki::print_err(__PRETTY_FUNCTION__);
         exit_flag = true;
-        return;
-    }
-    catch (std::exception &e)
-    {
-        std::cout << "*** error ***\n"
-                  << __PRETTY_FUNCTION__ << "\n"
-                  << e.what() << std::endl;
-        exit_flag = true;
-        return;
+        return; /* 最上部 */
     }
 }

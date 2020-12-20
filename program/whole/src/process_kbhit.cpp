@@ -73,19 +73,10 @@ void thread_kbhit(jibiki::ShareVar<bool> &exit_flag,
                 pushed_key = -1;
         }
     }
-    catch (std::string err)
+    catch (const std::exception &e)
     {
-        std::cout << "*** error ***\n"
-                  << err << std::endl;
+        jibiki::print_err(__PRETTY_FUNCTION__);
         exit_flag = true;
-        return;
-    }
-    catch (std::exception &e)
-    {
-        std::cout << "*** error ***\n"
-                  << __PRETTY_FUNCTION__ << "\n"
-                  << e.what() << std::endl;
-        exit_flag = true;
-        return;
+        return; /* 最上部 */
     }
 }

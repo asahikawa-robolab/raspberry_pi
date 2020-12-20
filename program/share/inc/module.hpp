@@ -1,8 +1,8 @@
+/* Last updated : 2020/10/05, 19:36 */
 #ifndef MODULE_HPP
 #define MODULE_HPP
-#include "../../share/inc/_thread.hpp"
-#include "../../share/inc/_std_func.hpp"
-#include "../../share/inc/_serial_communication.hpp"
+#include "_thread.hpp"
+#include "_serial_communication.hpp"
 
 /*-----------------------------------------------
  *
@@ -12,9 +12,10 @@
 class SwitchData
 {
 private:
+    static const std::size_t m_TOGGLE_NUM = 7;
     jibiki::ShareVar<uint8_t> m_push_l;
     jibiki::ShareVar<uint8_t> m_push_r;
-    jibiki::ShareVar<uint8_t> m_toggle[7];
+    jibiki::ShareVar<uint8_t> m_toggle[m_TOGGLE_NUM];
     jibiki::ShareVar<uint8_t> m_lu;
     jibiki::ShareVar<uint8_t> m_ld;
     jibiki::ShareVar<uint8_t> m_ru;
@@ -25,13 +26,24 @@ public:
     void set(jibiki::ParamCom &com); /* 受信データをメンバにセットする */
     uint8_t push_l(void) { return m_push_l.read(); }
     uint8_t push_r(void) { return m_push_r.read(); }
-    uint8_t toggle(size_t index) { return m_toggle[index].read(); }
+    uint8_t toggle(std::size_t index);
     uint8_t lu(void) { return m_lu.read(); }
     uint8_t ld(void) { return m_ld.read(); }
     uint8_t ru(void) { return m_ru.read(); }
     uint8_t rd(void) { return m_rd.read(); }
     uint8_t slide(void) { return m_slide.read(); }
 };
+
+inline uint8_t SwitchData::toggle(std::size_t index)
+{
+    /* 範囲チェック */
+    if (m_TOGGLE_NUM <= index)
+    {
+        jibiki::print_err(__PRETTY_FUNCTION__, "out_of_range");
+        throw std::out_of_range(""); /* エラー発生 */
+    }
+    return m_toggle[index].read();
+}
 
 /*-----------------------------------------------
  *
@@ -45,7 +57,7 @@ private:
     jibiki::ShareVar<double> m_offset;
 
 public:
-    Imu(void) : m_raw_data(0), m_offset(0) {}
+    Imu(void) noexcept : m_raw_data(0), m_offset(0) {}
     void write_offset(double angle);      /* read の結果が angle になるようにオフセットを設定する */
     void write_raw_data(double raw_data); /* 生データを書き込む */
     double read(void);                    /* 角度データを読み出す */
@@ -78,9 +90,9 @@ private: /* コンストラクタでしか変更操作が行われないため�
     size_t m_calc_period_ms;
 
 private:
-    jibiki::ShareVar<double> m_speed;    /* スティックの倒し具合 */
-    jibiki::ShareVar<double> m_theta[2]; /* スティックを倒している向き */
-    jibiki::ShareVar<timespec> m_time;   /* 実行周期の管理 */
+    jibiki::ShareVar<double> m_speed;            /* スティックの倒し具合 */
+    jibiki::ShareVar<double> m_theta[2];         /* スティックを倒している向き */
+    jibiki::ShareVar<jibiki::time_point> m_time; /* 実行周期の管理 */
 
     jibiki::ShareVar<bool> m_l_cross_l;
     jibiki::ShareVar<bool> m_l_cross_r;
@@ -114,7 +126,7 @@ private:
     jibiki::ShareVar<bool> m_tact_rd;
 
 private:
-    double my_atan(double y, double x, DirNum dir_num);
+    double my_atan(double y, double x, DirNum dir_num) const;
     void convt(Mode mode, DirNum dir_num); /* アナログスティックのデータを大きさ，向きに変換 */
 
 public:
@@ -192,7 +204,7 @@ private: /* コンストラクタでしか変更操作が行われないため�
 private:
     jibiki::ShareVar<double> m_fr, m_fl, m_br, m_bl; /* 回転数目標値 */
     jibiki::ShareVar<double> m_raw_rpm[4];           /* 回転数目標値（入れ替え，反転なし） */
-    jibiki::ShareVar<timespec> m_time;               /* calc 用 */
+    jibiki::ShareVar<jibiki::time_point> m_time;     /* calc 用 */
 
 private:
     void load_json(void);
@@ -217,7 +229,7 @@ public:
     double raw_fl(void);
     double raw_br(void);
     double raw_bl(void);
-    double max_rpm(void); /* JSON ファイルから読み込んだ max_rpm を返す */
+    double max_rpm(void) const noexcept; /* JSON ファイルから読み込んだ max_rpm を返す */
 };
 /* 足回りを停止させる */
 inline void Chassis::stop(void)
@@ -274,6 +286,6 @@ inline double Chassis::raw_bl(void)
     return m_raw_rpm[3].read();
 }
 /* JSON ファイルから読み込んだ max_rpm を返す */
-inline double Chassis::max_rpm(void) { return m_max_rpm; }
+inline double Chassis::max_rpm(void) const noexcept { return m_max_rpm; }
 
 #endif

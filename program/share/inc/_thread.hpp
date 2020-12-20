@@ -1,10 +1,11 @@
+/* Last updated : 2020/10/06, 00:38 */
 #ifndef _THREAD_HPP
 #define _THREAD_HPP
 
 #include <mutex>
 #include <vector>
-#include <unistd.h>
 #include <iostream>
+#include "_std_func.hpp"
 
 namespace jibiki
 {
@@ -27,7 +28,7 @@ namespace jibiki
         ShareVar(void) { write(T()); }              /* コンストラクタ */
         ShareVar(T val) { write(val); }             /* 値を指定してオブジェクトを作成 */
         T read(void);                               /* 値の読み出し */
-        void test_lock(useconds_t lock_time_us);    /* 指定時間 [us] ロックをかけるだけ */
+        void test_lock(size_t lock_time_us);    /* 指定時間 [us] ロックをかけるだけ */
         void operator+=(T n) { write(read() + n); } /* += */
         void operator-=(T n) { write(read() - n); } /* -= */
         void operator*=(T n) { write(read() * n); } /* *= */
@@ -53,12 +54,12 @@ namespace jibiki
     }
     /* 指定時間 [us] ロックをかけるだけ */
     template <typename T>
-    inline void ShareVar<T>::test_lock(useconds_t lock_time_us)
+    inline void ShareVar<T>::test_lock(size_t lock_time_us)
     {
         std::lock_guard<std::mutex> lock(m_mtx);
-        std::cout << "locked" << std::endl;
+        std::cout << "locked\n";
         usleep(lock_time_us);
-        std::cout << "unlocked" << std::endl;
+        std::cout << "unlocked\n";
     }
     /*-----------------------------------------------
     *
@@ -87,7 +88,7 @@ namespace jibiki
     inline void ShareVarVec<T>::push_back(T tmp)
     {
         std::lock_guard<std::mutex> lock(m_mtx);
-        m_data.push_back(tmp);
+        m_data.emplace_back(tmp);
     }
     /* 要素数を取得 */
     template <typename T>
@@ -101,7 +102,7 @@ namespace jibiki
     inline T ShareVarVec<T>::read(size_t index)
     {
         std::lock_guard<std::mutex> lock(m_mtx);
-        T ret = m_data[index];
+        T ret = m_data.at(index);
         return ret;
     }
     /* 値の書き込み */
@@ -109,7 +110,7 @@ namespace jibiki
     inline void ShareVarVec<T>::write(size_t index, T val)
     {
         std::lock_guard<std::mutex> lock(m_mtx);
-        m_data[index] = val;
+        m_data.at(index) = val;
     }
     /* 要素数の変更 */
     template <typename T>
@@ -130,6 +131,7 @@ namespace jibiki
     inline void ShareVarVec<T>::erase(size_t index)
     {
         std::lock_guard<std::mutex> lock(m_mtx);
+        // TODO:out_of_range の例外処理
         m_data.erase(m_data.begin() + index);
     }
     /*-----------------------------------------------
@@ -147,7 +149,7 @@ namespace jibiki
         } OperateMethod;
         bool manage(ShareVar<bool> &exit_flag,
                     ShareVar<OperateMethod> &current_method,
-                    OperateMethod my_method);
+                    const OperateMethod my_method);
         bool manage(ShareVar<bool> &exit_flag);
         bool enable(std::string thread_name,
                     std::string json_path = "setting.json");

@@ -10,8 +10,7 @@
 void thread_kbhit(jibiki::ShareVar<bool> &exit_flag,
                   jibiki::ShareVar<bool> &start_flag,
                   jibiki::ShareVar<bool> &reset_flag,
-                  jibiki::ShareVar<int> &pushed_key,
-                  jibiki::ShareVarVec<std::string> &executing_order);
+                  jibiki::ShareVar<int> &pushed_key);
 void process_display(jibiki::ShareVar<bool> &exit_flag,
                      jibiki::ShareVar<int> &pushed_key,
                      jibiki::ShareVarVec<std::string> &executing_order);
@@ -41,8 +40,7 @@ int main(void)
                    std::ref(exit_flag),
                    std::ref(start_flag),
                    std::ref(reset_flag),
-                   std::ref(pushed_key),
-                   std::ref(executing_order));
+                   std::ref(pushed_key));
     /* display */
     std::thread t3(process_display,
                    std::ref(exit_flag),

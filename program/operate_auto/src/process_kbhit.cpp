@@ -4,8 +4,7 @@
 void thread_kbhit(jibiki::ShareVar<bool> &exit_flag,
                   jibiki::ShareVar<bool> &start_flag,
                   jibiki::ShareVar<bool> &reset_flag,
-                  jibiki::ShareVar<int> &pushed_key,
-                  jibiki::ShareVarVec<std::string> &executing_order)
+                  jibiki::ShareVar<int> &pushed_key)
 {
     if (!jibiki::thread::enable("kbhit"))
         return;

@@ -1,7 +1,7 @@
-# Last updated : 2020/09/16
+# Last updated : 2020/09/27, 19:08
 
 CC:=g++
-CFLAGS := -Wall -O2 -pthread	# -pthread : std::thread 用
+CFLAGS := -Wall -Wextra -O2 -pthread	# -Wall -Wextra : 警告の出力，-pthread : std::thread
 LIBS = `pkg-config opencv --cflags --libs` `urg_c-config --cflags --libs` -I /usr/local/include -L /usr/local/lib -lwiringPi
 
 SRC_DIR:=./src

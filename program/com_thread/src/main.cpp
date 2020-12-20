@@ -37,7 +37,7 @@ int main(void)
 
         t_kbhit.join();
     }
-    catch (std::exception &e)
+    catch (const std::exception &e)
     {
         std::cerr << e.what() << std::endl;
         exit_flag = true;

@@ -1,5 +1,6 @@
 #include <sstream>
 #include "../../share/inc/_utility.hpp"
+#include "../../share/inc/_std_func.hpp"
 
 void test(jibiki::ProcOperateAuto *control,
           std::vector<std::string> param,
@@ -24,7 +25,7 @@ void test(jibiki::ProcOperateAuto *control,
         control->set_executing_order(seq, sstr.str());
 
         /* 待機 */
-        usleep(1E6);
+        jibiki::usleep(1E6);
     }
 
     printf("\t\t\t[ %d, %d, %d ] finish\n", seq[0], seq[1], seq[2]);

@@ -1,3 +1,4 @@
+/* Last updated : 2020/10/04, 20:36 */
 #define _USE_MATH_DEFINES
 #include <sstream>
 #include "../inc/module.hpp"
@@ -50,6 +51,7 @@ Controller::Controller(std::string json_path)
       m_tact_ru(false), m_tact_ld(false),
       m_tact_md(false), m_tact_rd(false)
 {
+    /* JSON の読み込み */
     try
     {
         using picojson::object;
@@ -57,26 +59,22 @@ Controller::Controller(std::string json_path)
         m_calc_period_ms = (size_t)json_val.get<object>()["system"]
                                .get<object>()["calc_period_ms"]
                                .get<double>();
-        /* エラーチェック */
-        if (m_calc_period_ms <= 0)
-            throw std::string("system/calc_period_ms には"
-                              "正の値を指定してください．\n");
     }
-    catch (std::string err)
+    catch (const std::exception &e)
     {
-        std::cout << "*** error ***\n"
-                  << __PRETTY_FUNCTION__ << "\n"
-                  << json_path << " 中の " << err << "\n"
-                  << std::endl;
-        throw;
+        std::stringstream sstr;
+        sstr << json_path << " 中の system の書式が不適切です．";
+        jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+        throw std::runtime_error(""); /* エラー発生 */
     }
-    catch (...)
+    /* エラーチェック */
+    if (m_calc_period_ms <= 0)
     {
-        std::cout << "*** error ***\n"
-                  << __PRETTY_FUNCTION__ << "\n"
-                  << json_path << " 中の system の項目が不適切です．\n"
-                  << std::endl;
-        throw;
+        std::stringstream sstr;
+        sstr << json_path << "中の system/calc_period_ms の値が不適切です．\n"
+             << "正の値を指定してください．";
+        jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+        throw std::runtime_error(""); /* エラー発生 */
     }
 }
 /* 受信データをメンバにセットする */
@@ -115,11 +113,11 @@ void Controller::set(jibiki::ParamCom &com)
     m_tact_rd = (com.rx(7) >> 5) & 0b1;
 }
 /* アナログスティックの値から角度を計算 */
-double Controller::my_atan(double y, double x, DirNum dir_num)
+double Controller::my_atan(double y, double x, DirNum dir_num) const
 {
     const double M_PI_6 = M_PI / 6;
     const double M_PI_3 = M_PI / 3;
-    double theta = atan2(y, x);
+    double theta = std::atan2(y, x);
     if (dir_num == DIR_8)
     {
         if (jibiki::between(-M_PI, theta, -M_PI_6 * 5))
@@ -138,7 +136,7 @@ double Controller::my_atan(double y, double x, DirNum dir_num)
             theta = M_PI_2;
         else if (jibiki::between(M_PI_3 * 2, theta, M_PI_6 * 5))
             theta = M_PI_4 * 3;
-        else if (jibiki::between(M_PI_6 * 5, theta, M_PI) || theta == M_PI)
+        else if (jibiki::between2(M_PI_6 * 5, theta, M_PI))
             theta = M_PI;
     }
     else if (dir_num == DIR_4)
@@ -151,7 +149,7 @@ double Controller::my_atan(double y, double x, DirNum dir_num)
             theta = 0;
         else if (jibiki::between(M_PI_4, theta, M_PI_4 * 3))
             theta = M_PI_2;
-        else if (jibiki::between(M_PI_4 * 3, theta, M_PI) || theta == M_PI)
+        else if (jibiki::between2(M_PI_4 * 3, theta, M_PI))
             theta = M_PI;
     }
     return theta;
@@ -212,33 +210,47 @@ void Controller::convt(Mode mode, DirNum dir_num)
 -----------------------------------------------*/
 /* コンストラクタ */
 Chassis::Chassis(Imu &imu, std::string json_path)
-    : m_speed(0), m_theta(jibiki::deg_rad(90)),
-      m_spin(0), m_turn_mode(TURN_SHORTEST)
+    : m_imu(&imu),
+      m_json_path(json_path),
+      m_time(jibiki::get_time()),
+      m_speed(0),
+      m_theta(jibiki::deg_rad(90)),
+      m_spin(0),
+      m_turn_mode(TURN_SHORTEST)
 {
-    m_time = jibiki::get_time();
-    m_imu = &imu;
-    m_json_path = json_path;
-
-    /* JSON ファイルから設定を読み込む */
-    load_json();
+    try
+    {
+        /* JSON ファイルから設定を読み込む */
+        load_json();
+    }
+    catch (const std::exception &e)
+    {
+        jibiki::print_err(__PRETTY_FUNCTION__);
+        throw; /* 仲介 */
+    }
 }
+
 /* JSON ファイルを読み込む */
 void Chassis::load_json(void)
 {
     using picojson::object;
-    /* chassis */
+    double c1, c2, c3, c4; /* channel */
+
+    /*-----------------------------------------------
+    ファイルを読み込む
+    -----------------------------------------------*/
     try
     {
-        /* ファイルを読み込む */
+        /* chassis */
         picojson::value json_value = jibiki::load_json_file(m_json_path);
         object &obj = json_value.get<object>()["chassis"].get<object>();
         /* max_rpm */
         m_max_rpm = obj["max_rpm"].get<double>();
         /* channel */
-        double c1 = obj["channel"].get<object>()["fr"].get<double>();
-        double c2 = obj["channel"].get<object>()["fl"].get<double>();
-        double c3 = obj["channel"].get<object>()["br"].get<double>();
-        double c4 = obj["channel"].get<object>()["bl"].get<double>();
+        c1 = obj["channel"].get<object>()["fr"].get<double>();
+        c2 = obj["channel"].get<object>()["fl"].get<double>();
+        c3 = obj["channel"].get<object>()["br"].get<double>();
+        c4 = obj["channel"].get<object>()["bl"].get<double>();
         m_channel_fr = (size_t)c1;
         m_channel_fl = (size_t)c2;
         m_channel_br = (size_t)c3;
@@ -252,76 +264,79 @@ void Chassis::load_json(void)
         m_rotate_min = obj["rotate"].get<object>()["min"].get<double>();
         m_rotate_max = obj["rotate"].get<object>()["max"].get<double>();
         m_rotate_kp = obj["rotate"].get<object>()["kp"].get<double>();
-
-        /* エラーチェック */
+    }
+    catch (const std::exception &e)
+    {
+        std::stringstream sstr;
+        sstr << m_json_path << " 中の chassis の書式が不適切です．";
+        jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+        throw std::runtime_error(""); /* エラー発生 */
+    }
+    /*-----------------------------------------------
+    エラーチェック
+    -----------------------------------------------*/
+    try
+    {
         bool v_fr = c1 == 0 || c1 == 1 || c1 == 2 || c1 == 3;
         bool v_fl = c2 == 0 || c2 == 1 || c2 == 2 || c2 == 3;
         bool v_br = c3 == 0 || c3 == 1 || c3 == 2 || c3 == 3;
         bool v_bl = c4 == 0 || c4 == 1 || c4 == 2 || c4 == 3;
         if ((v_fr & v_fl & v_br & v_bl) == false)
-            throw std::string("chassis/channel には"
+            throw std::string("chassis/channel の値が不適切です．\n"
                               " 0, 1, 2, 3 のいずれかを指定してください．");
         bool eq1 = c1 == c2 || c1 == c3 || c1 == c4;
         bool eq2 = c2 == c3 || c2 == c4;
         bool eq3 = c3 == c4;
         if (eq1 | eq2 | eq3)
-            throw std::string("chassis/channel の値が重複しています．\n"
-                              "別の値を指定してください．");
+            throw std::string("chassis/channel の値が不適切です．\n"
+                              "重複しない相異なる値を指定してください．"); /* エラー発生 */
         if (m_max_rpm <= 0)
-            throw std::string("chassis/max_rpm には正の値を指定してください．\n");
+            throw std::string("chassis/max_rpm の値が不適切です．\n"
+                              "正の値を指定してください．"); /* エラー発生 */
         if (m_rotate_min <= 0)
-            throw std::string("chassis/rotate/min には"
-                              "正の値を指定してください．\n");
+            throw std::string("chassis/rotate/min の値が不適切です．\n"
+                              "正の値を指定してください．"); /* エラー発生 */
         if (m_rotate_max <= 0)
-            throw std::string("chassis/rotate/max には"
-                              "正の値を指定してください．\n");
+            throw std::string("chassis/rotate/max の値が不適切です．\n"
+                              "正の値を指定してください．"); /* エラー発生 */
         if (m_rotate_kp <= 0)
-            throw std::string("chassis/rotate/kp には"
-                              "正の値を指定してください．\n");
+            throw std::string("chassis/rotate/kp の値が不適切です．\n"
+                              "正の値を指定してください．"); /* エラー発生 */
     }
     catch (std::string err)
     {
-        std::cout << "*** error ***\n"
-                  << __PRETTY_FUNCTION__ << "\n"
-                  << m_json_path << " 中の " << err << "\n"
-                  << std::endl;
-        throw;
+        std::stringstream sstr;
+        sstr << m_json_path << " 中の " << err;
+        jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+        throw std::runtime_error(""); /* エラー発生 */
     }
-    catch (std::exception &e)
-    {
-        std::cout << "*** error ***\n"
-                  << __PRETTY_FUNCTION__ << "\n"
-                  << m_json_path << " 中の chassis の項目が不適切です．\n"
-                  << std::endl;
-        throw;
-    }
-    /* system_calc_period_ms */
+    /*-----------------------------------------------
+    system_calc_period_ms
+    -----------------------------------------------*/
     try
     {
         picojson::value json_val = jibiki::load_json_file(m_json_path);
         m_calc_period_ms = (size_t)json_val.get<object>()["system"]
                                .get<object>()["calc_period_ms"]
                                .get<double>();
-        /* エラーチェック */
-        if (m_calc_period_ms <= 0)
-            throw std::string("system/calc_period_ms には"
-                              "正の値を指定してください．\n");
     }
-    catch (std::string err)
+    catch (const std::exception &e)
     {
-        std::cout << "*** error ***\n"
-                  << __PRETTY_FUNCTION__ << "\n"
-                  << m_json_path << " 中の " << err << "\n"
-                  << std::endl;
-        throw;
+        std::stringstream sstr;
+        sstr << m_json_path << " 中の system の書式が不適切です．";
+        jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+        throw std::runtime_error(""); /* エラー発生 */
     }
-    catch (...)
+    /*-----------------------------------------------
+    エラーチェック
+    -----------------------------------------------*/
+    if (m_calc_period_ms <= 0)
     {
-        std::cout << "*** error ***\n"
-                  << __PRETTY_FUNCTION__ << "\n"
-                  << m_json_path << " 中の system の項目が不適切です．\n"
-                  << std::endl;
-        throw;
+        std::stringstream sstr;
+        sstr << m_json_path << " 中の system/calc_period_ms の値が不適切です．\n"
+                               "正の値を指定してください．";
+        jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+        throw std::runtime_error(""); /* エラー発生 */
     }
 }
 /* 各モータの回転数目標値を計算 */
@@ -342,9 +357,11 @@ void Chassis::calc(void)
     if (!jibiki::between2(0.0, m_speed.read(), m_max_rpm))
     {
         std::stringstream sstr;
-        sstr << __PRETTY_FUNCTION__ << "\n"
-             << "無効な speed\t" << m_speed.read() << std::endl;
-        throw sstr.str();
+        sstr << "Chassis::m_speed の値 (" << m_speed.read() << ") が不適切です．\n "
+             << m_json_path << " の chassis/max_rpm の値 (" << max_rpm()
+             << ") を超えないようにしてください．";
+        jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+        throw std::runtime_error(""); /* エラー発生 */
     }
 
     double rotate = calc_rotate();       /* 回転量を計算 */

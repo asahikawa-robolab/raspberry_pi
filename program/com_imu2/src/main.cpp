@@ -43,9 +43,9 @@ int main(void)
             }
         }
     }
-    catch (std::string err)
+    catch (const std::exception &e)
     {
-        std::cout << err << std::endl;
+        std::cerr << e.what() << '\n';
         return 1;
     }
     return 0;

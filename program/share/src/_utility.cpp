@@ -1,8 +1,7 @@
-#include <fstream>
+/* Last updated : 2020/10/05, 19:36 */
 #include <sstream>
 #include <iostream>
 #include <thread>
-#include "../../share/inc/_picojson.hpp"
 #include "../../share/inc/_std_func.hpp"
 #include "../../share/inc/_thread.hpp"
 #include "../../share/inc/_utility.hpp"
@@ -11,95 +10,226 @@ namespace jibiki
 {
     /*-----------------------------------------------
     *
-    * Order コンストラクタ
+    * ProcOperateAuto コンストラクタ
     *
     -----------------------------------------------*/
-    ProcOperateAuto::Order::Order(size_t seq1, size_t seq2, size_t seq3, std::string name)
+    ProcOperateAuto::
+        ProcOperateAuto(ShareVar<bool> &exit_flag,
+                        ShareVar<bool> &start_flag,
+                        ShareVar<bool> &reset_flag,
+                        ShareVar<thread::OperateMethod> &current_method,
+                        ShareVar<std::string> &execute_orders,
+                        ShareVarVec<std::string> &executing_order,
+                        std::vector<ModeFunc> mode_func,
+                        bool is_print,
+                        std::string json_path)
+        : m_control_data{&exit_flag,
+                         &start_flag,
+                         &reset_flag,
+                         &current_method},
+          m_mode_func(mode_func),
+          m_executing_order(&executing_order),
+          m_execute_orders(&execute_orders),
+          m_is_print(is_print),
+          m_json_path(json_path)
     {
-        m_seq[0] = seq1;
-        m_seq[1] = seq2;
-        m_seq[2] = seq3;
-        m_name = name;
+        try
+        {
+            load_json();
+            std::thread t([this] {
+                this->launch();
+            });
+            m_t = std::move(t);
+        }
+        catch (const std::exception &e)
+        {
+            jibiki::print_err(__PRETTY_FUNCTION__);
+            throw; /* 仲介 */
+        }
     }
     /*-----------------------------------------------
     *
     * 初期化
     *
     -----------------------------------------------*/
-    void ProcOperateAuto::init(ShareVar<bool> &exit_flag,
-                               ShareVar<bool> &start_flag,
-                               ShareVar<bool> &reset_flag,
-                               ShareVar<thread::OperateMethod> &current_method,
-                               ShareVar<std::string> &execute_orders,
-                               ShareVarVec<std::string> &executing_order,
-                               std::vector<ModeFunc> mode_func,
-                               bool is_print,
-                               std::string json_path)
+    void ProcOperateAuto::load_json(void)
     {
         /* using 宣言 */
         using picojson::array;
         using picojson::object;
-        /* 初期化 */
-        m_control_data.m_exit_flag = &exit_flag;
-        m_control_data.m_start_flag = &start_flag;
-        m_control_data.m_reset_flag = &reset_flag;
-        m_control_data.m_current_method = &current_method;
-        m_execute_orders = &execute_orders;
-        m_executing_order = &executing_order;
-        m_mode_func = mode_func;
-        m_is_print = is_print;
-        /* m_modes に値を設定 */
-        picojson::value json_val = load_json_file(json_path);
-        array &mode_list_array = json_val
-                                     .get<object>()["mode_list"]
-                                     .get<array>();
-        for (size_t i = 0; i < mode_list_array.size(); ++i)
-            m_modes.push_back(mode_list_array[i].get<std::string>());
+
+        /*-----------------------------------------------
+        値を読み込む
+        -----------------------------------------------*/
+        try
+        {
+            picojson::value json_val = load_json_file(m_json_path);
+            array &mode_list_array = json_val
+                                         .get<object>()["mode_list"]
+                                         .get<array>();
+            for (const auto &i : mode_list_array)
+                m_modes.emplace_back(i.get<std::string>());
+        }
+        catch (const std::exception &e)
+        {
+            std::stringstream sstr;
+            sstr << m_json_path << " 中の mode_list の書式が不適切です．";
+            jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+            throw std::runtime_error(""); /* エラー発生 */
+        }
+
+        /*-----------------------------------------------
+		mode_func の要素数の確認
+		-----------------------------------------------*/
+        if (m_mode_func.size() != m_modes.size())
+        {
+            std::stringstream sstr;
+            sstr << "jibiki::ProcOperateAuto::ProcOperateAuto() "
+                 << "の引数である mode_func の要素数と\n"
+                 << m_json_path << " 中の mode_list の要素数が一致しません．";
+            jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+            throw std::runtime_error(""); /* エラー発生 */
+        }
+    }
+    /*-----------------------------------------------
+    *
+    * スレッド内部で実行する処理
+    *
+    -----------------------------------------------*/
+    void ProcOperateAuto::launch(void)
+    {
+        try
+        {
+            /* スレッドの実行の管理 */
+            if (!thread::enable("operate_auto"))
+                return;
+            while (manage_thread_int(false))
+            {
+                if (m_control_data.m_start_flag->read() &
+                    !m_control_data.m_reset_flag->read())
+                {
+                    load_orders();
+                    if (m_is_print)
+                        print();
+                }
+                if (!m_orders.empty())
+                    execute();
+            }
+        }
+        catch (const std::exception &e)
+        {
+            jibiki::print_err(__PRETTY_FUNCTION__);
+            *m_control_data.m_exit_flag = true;
+            return; /* 最上部 */
+        }
     }
     /*-----------------------------------------------
     *
     * orders を読み込む
     *
     -----------------------------------------------*/
-    void ProcOperateAuto::load(void)
+    void ProcOperateAuto::load_orders(void)
     {
         /* using 宣言 */
         using picojson::array;
         using picojson::object;
-        /* json ファイルを picojson で読み込む */
-        picojson::value json_val =
-            load_json_file("order.json");
         /*-----------------------------------------------
         orders を読み込む
         -----------------------------------------------*/
-        array &root_array = json_val
-                                .get<object>()[m_execute_orders->read().c_str()]
-                                .get<array>();
-        for (size_t i = 0; i < root_array.size(); ++i)
+        try
         {
-            Order tmp;
-            /* seq */
-            for (size_t j = 0; j < 3; ++j)
-                tmp.m_seq[j] = (size_t)root_array[i]
-                                   .get<object>()["seq"]
-                                   .get<array>()[j]
-                                   .get<double>();
-            /* mode */
-            tmp.m_mode = root_array[i]
-                             .get<object>()["mode"]
-                             .get<std::string>();
-            /* param */
-            array &param_array = root_array[i]
-                                     .get<object>()["param"]
-                                     .get<array>();
-            for (size_t j = 0; j < param_array.size(); ++j)
-                tmp.m_param.push_back(param_array[j].get<std::string>());
-            /* name */
-            tmp.m_name = root_array[i]
-                             .get<object>()["name"]
-                             .get<std::string>();
-            /* リストに追加 */
-            m_orders.emplace_back(tmp);
+            picojson::value json_val = load_json_file(m_json_path);
+            array &root_array =
+                json_val.get<object>()[m_execute_orders->read().c_str()].get<array>();
+
+            for (auto &i : root_array)
+            {
+                Order tmp;
+                /* seq */
+                for (size_t j = 0; j < 3; ++j)
+                    tmp.m_seq[j] = (size_t)i.get<object>()["seq"]
+                                       .get<array>()[j]
+                                       .get<double>();
+                /* mode */
+                tmp.m_mode = i.get<object>()["mode"].get<std::string>();
+                /* param */
+                array &param_array = i.get<object>()["param"].get<array>();
+                for (const auto &j : param_array)
+                    tmp.m_param.emplace_back(j.get<std::string>());
+                /* name */
+                tmp.m_name = i.get<object>()["name"].get<std::string>();
+                /* リストに追加 */
+                m_orders.emplace_back(tmp);
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::stringstream sstr;
+            sstr << m_json_path << " の書式が不適切です．";
+            jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+            throw std::runtime_error(""); /* エラー発生 */
+        }
+        /*-----------------------------------------------
+        seq のエラーチェック
+        -----------------------------------------------*/
+        check_duplication(); /* 重複を確認 */
+        check_ordering();    /* 順序性を確認 */
+    }
+    /*-----------------------------------------------
+    *
+    * 重複を確認
+    *
+    -----------------------------------------------*/
+    void ProcOperateAuto::check_duplication(void)
+    {
+        for (size_t i = 0; i < m_orders.size(); ++i)
+        {
+            for (size_t j = i + 1; j < m_orders.size(); ++j)
+            {
+                bool c1 = m_orders[i].m_seq[0] == m_orders[j].m_seq[0];
+                bool c2 = m_orders[i].m_seq[1] == m_orders[j].m_seq[1];
+                bool c3 = m_orders[i].m_seq[2] == m_orders[j].m_seq[2];
+                if (c1 & c2 & c3)
+                {
+                    std::stringstream sstr;
+                    sstr << m_json_path << " 中の " << m_execute_orders->read()
+                         << " で seq が重複しています．[ "
+                         << m_orders[i].m_seq[0] << ", "
+                         << m_orders[i].m_seq[1] << ", "
+                         << m_orders[i].m_seq[2] << " ]";
+                    jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+                    throw std::runtime_error(""); /* エラー発生 */
+                }
+            }
+        }
+    }
+    /*-----------------------------------------------
+    *
+    * 順序性を確認
+    *
+    -----------------------------------------------*/
+    void ProcOperateAuto::check_ordering(void)
+    {
+        try
+        {
+            for (size_t seq1 = 0; seq1 <= find(); ++seq1)
+            {
+                size_t branch_num = find(seq1) + 1; /* 分岐の数 */
+                for (size_t seq2 = 0; seq2 < branch_num; ++seq2)
+                {
+                    size_t element_num = find(seq1, seq2) + 1;
+                    for (size_t seq3 = 0; seq3 < element_num; ++seq3)
+                        find(seq1, seq2, seq3);
+                }
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::stringstream sstr;
+            sstr << m_json_path << " 中の " << m_execute_orders->read()
+                 << " で抜けている seq があります．";
+            jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+            throw std::runtime_error(""); /* エラー発生 */
         }
     }
     /*-----------------------------------------------
@@ -107,22 +237,20 @@ namespace jibiki
     * order を表示
     *
     -----------------------------------------------*/
-    void ProcOperateAuto::print(void)
+    void ProcOperateAuto::print(void) const noexcept
     {
-        std::cout << "-------------------------------" << std::endl;
-        for (size_t i = 0; i < m_orders.size(); ++i)
+        std::cout << "-------------------------------\n";
+        for (const auto &i : m_orders)
         {
             printf("%s\n%d, %d, %d : %s\n",
-                   m_orders[i].m_name.c_str(),
-                   m_orders[i].m_seq[0],
-                   m_orders[i].m_seq[1],
-                   m_orders[i].m_seq[2],
-                   m_orders[i].m_mode.c_str());
-            for (size_t j = 0; j < m_orders[i].m_param.size(); ++j)
-                std::cout << m_orders[i].m_param[j] << ", " << std::flush;
+                   i.m_name.c_str(),
+                   i.m_seq[0], i.m_seq[1], i.m_seq[2],
+                   i.m_mode.c_str());
+            for (const auto &j : i.m_param)
+                std::cout << j << ", " << std::flush;
             printf("\n\n");
         }
-        std::cout << "-------------------------------" << std::endl;
+        std::cout << "-------------------------------\n";
     }
     /*-----------------------------------------------
     *
@@ -131,8 +259,7 @@ namespace jibiki
     -----------------------------------------------*/
     void ProcOperateAuto::execute(void)
     {
-        std::cout << "*** orders start ["
-                  << m_execute_orders->read() << "] ***" << std::endl;
+        std::cout << "orders start [" << m_execute_orders->read() << "]\n";
         for (size_t i = 0; i <= find(); ++i)
         {
             if (!manage_thread_int())
@@ -147,14 +274,17 @@ namespace jibiki
             {
                 if (!manage_thread_int())
                     break;
-                std::thread t(&ProcOperateAuto::branch, this,
-                              std::ref(finish_flag[j]), i, j);
+                std::thread t(&ProcOperateAuto::branch,
+                              this,
+                              std::ref(finish_flag[j]),
+                              i,
+                              j);
                 t.detach();
             }
             /*-----------------------------------------------
             全てのスレッドの処理が終了するまで待機
             -----------------------------------------------*/
-            while (1)
+            while (manage_thread_int())
             {
                 /* 未完了のスレッドが見つからなかったら break */
                 auto itr = std::find(finish_flag.begin(), finish_flag.end(), 0);
@@ -165,14 +295,11 @@ namespace jibiki
         /* 終了処理 */
         m_executing_order->clear();
         if (m_control_data.m_reset_flag->read())
-            std::cout << "*** orders reset ["
-                      << m_execute_orders->read() << "] ***" << std::endl;
+            std::cout << "orders reset [" << m_execute_orders->read() << "]\n";
         else if (m_control_data.m_exit_flag->read())
-            std::cout << "*** orders quit ["
-                      << m_execute_orders->read() << "] ***" << std::endl;
+            std::cout << "orders quit [" << m_execute_orders->read() << "]\n";
         else
-            std::cout << "*** orders complete ["
-                      << m_execute_orders->read() << "] ***" << std::endl;
+            std::cout << "orders complete [" << m_execute_orders->read() << "]\n";
         m_orders.clear();
     }
     /*-----------------------------------------------
@@ -203,35 +330,44 @@ namespace jibiki
                 if (itr == m_modes.end())
                 {
                     std::stringstream sstr;
-                    sstr << __PRETTY_FUNCTION__ << std::endl;
-                    sstr << "存在しないモード [ " << m_orders[order_index].m_mode
-                         << " ] が指定されています" << std::endl;
-                    throw sstr.str();
+                    sstr << m_json_path << " の mode_list に"
+                         << "存在しないモードが指定されています．\n"
+                         << "seq : [ " << seq1 << ", " << seq2 << ", "
+                         << seq3 << " ], mode : "
+                         << m_orders[order_index].m_mode;
+                    jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+                    throw std::runtime_error(""); /* エラー発生 */
                 }
-                size_t mode_index = itr - m_modes.begin();
-                /* order を実行 */
+
+                /*-----------------------------------------------
+                order を実行
+                -----------------------------------------------*/
                 size_t seq[] = {seq1, seq2, seq3};
-                m_mode_func[mode_index](this,
-                                        m_orders[order_index].m_param,
-                                        seq);
+                try
+                {
+                    size_t mode_index = itr - m_modes.begin();
+                    m_mode_func[mode_index](this,
+                                            m_orders[order_index].m_param,
+                                            seq);
+                }
+                catch (const std::exception &e)
+                {
+                    std::stringstream sstr;
+                    sstr << "ModeFunc 中で例外が発生．"
+                         << "seq : [ " << seq[0] << ", " << seq[1] << ", "
+                         << seq[2] << " ]";
+                    jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+                    throw std::runtime_error(""); /* エラー発生 */
+                }
             }
             /* スレッドが終了したことを通知する */
             finish_flag = 1;
         }
-        catch (std::string err)
+        catch (const std::exception &e)
         {
-            std::cout << "*** error ***\n"
-                      << err << std::endl;
+            jibiki::print_err(__PRETTY_FUNCTION__);
             *m_control_data.m_exit_flag = true;
-            return;
-        }
-        catch (std::exception &e)
-        {
-            std::cout << "*** error ***\n"
-                      << __PRETTY_FUNCTION__ << "\n"
-                      << e.what() << std::endl;
-            *m_control_data.m_exit_flag = true;
-            return;
+            return; /* 最上部 */
         }
     }
     /*-----------------------------------------------
@@ -239,7 +375,7 @@ namespace jibiki
     * 引数に指定した seq と一致する list のインデックスを返す
     *
     -----------------------------------------------*/
-    size_t ProcOperateAuto::find(size_t seq1, size_t seq2, size_t seq3)
+    size_t ProcOperateAuto::find(size_t seq1, size_t seq2, size_t seq3) const
     {
         for (size_t i = 0; i < m_orders.size(); ++i)
         {
@@ -251,28 +387,29 @@ namespace jibiki
         }
         /* １つも見つからなかった場合 */
         std::stringstream sstr;
-        sstr << __PRETTY_FUNCTION__ << std::endl
-             << "seq1 : " << seq1 << ", seq2 : " << seq2
-             << "seq3 : " << seq3 << std::endl;
-        throw sstr.str();
+        sstr << "seq [ " << seq1 << ", " << seq2 << ", " << seq3 << " ] "
+             << "が見つかりませんでした．";
+        jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+        throw std::runtime_error(sstr.str()); /* エラー発生 */
+        return 0;                             /* warning 対策 */
     }
     /*-----------------------------------------------
     *
     * 引数で指定した seq において，seq3 の最大値を返す
     *
     -----------------------------------------------*/
-    size_t ProcOperateAuto::find(size_t seq1, size_t seq2)
+    size_t ProcOperateAuto::find(size_t seq1, size_t seq2) const
     {
         bool is_found = false;
         size_t max = 0;
-        for (size_t i = 0; i < m_orders.size(); ++i)
+        for (const auto &i : m_orders)
         {
-            bool _1 = (m_orders[i].m_seq[0] == seq1);
-            bool _2 = (m_orders[i].m_seq[1] == seq2);
-            bool _3 = (m_orders[i].m_seq[2] >= max);
+            bool _1 = (i.m_seq[0] == seq1);
+            bool _2 = (i.m_seq[1] == seq2);
+            bool _3 = (i.m_seq[2] >= max);
             if (_1 & _2 & _3)
             {
-                max = m_orders[i].m_seq[2];
+                max = i.m_seq[2];
                 is_found = true;
             }
         }
@@ -280,9 +417,10 @@ namespace jibiki
         if (!is_found)
         {
             std::stringstream sstr;
-            sstr << __PRETTY_FUNCTION__ << std::endl
-                 << "seq1 : " << seq1 << ", seq2 : " << seq2 << std::endl;
-            throw sstr.str();
+            sstr << "seq [ " << seq1 << ", " << seq2 << ", * ] "
+                 << "が見つかりませんでした．";
+            jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+            throw std::runtime_error(sstr.str()); /* エラー発生 */
         }
         return max;
     }
@@ -291,17 +429,18 @@ namespace jibiki
     * 引数で指定した seq において，seq2 の最大値を返す
     *
     -----------------------------------------------*/
-    size_t ProcOperateAuto::find(size_t seq1)
+    size_t ProcOperateAuto::find(size_t seq1) const
     {
         bool is_found = false;
         size_t max = 0;
-        for (size_t i = 0; i < m_orders.size(); ++i)
+
+        for (const auto &i : m_orders)
         {
-            bool _1 = (m_orders[i].m_seq[0] == seq1);
-            bool _2 = (m_orders[i].m_seq[1] >= max);
+            bool _1 = (i.m_seq[0] == seq1);
+            bool _2 = (i.m_seq[1] >= max);
             if (_1 & _2)
             {
-                max = m_orders[i].m_seq[1];
+                max = i.m_seq[1];
                 is_found = true;
             }
         }
@@ -309,9 +448,9 @@ namespace jibiki
         if (!is_found)
         {
             std::stringstream sstr;
-            sstr << __PRETTY_FUNCTION__ << std::endl
-                 << "seq1 : " << seq1 << std::endl;
-            throw sstr.str();
+            sstr << "seq [ " << seq1 << ", *, * ] が見つかりませんでした．";
+            jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+            throw std::runtime_error(sstr.str()); /* エラー発生 */
         }
         return max;
     }
@@ -320,77 +459,13 @@ namespace jibiki
     * seq1 の最大値を取得
     *
     -----------------------------------------------*/
-    size_t ProcOperateAuto::find(void)
+    size_t ProcOperateAuto::find(void) const noexcept
     {
         size_t max = 0;
-        for (auto i : m_orders)
+        for (const auto &i : m_orders)
             if (i.m_seq[0] >= max)
                 max = i.m_seq[0];
         return max;
-    }
-    /*-----------------------------------------------
-    *
-    * ProcOperateAuto コンストラクタ
-    *
-    -----------------------------------------------*/
-    ProcOperateAuto::
-        ProcOperateAuto(ShareVar<bool> &exit_flag,
-                        ShareVar<bool> &start_flag,
-                        ShareVar<bool> &reset_flag,
-                        ShareVar<thread::OperateMethod> &current_method,
-                        ShareVar<std::string> &execute_orders,
-                        ShareVarVec<std::string> &executing_order,
-                        std::vector<ModeFunc> mode_func,
-                        bool is_print,
-                        std::string json_path)
-    {
-        init(exit_flag, start_flag, reset_flag, current_method,
-             execute_orders, executing_order, mode_func, is_print, json_path);
-        std::thread t([this] {
-            this->launch();
-        });
-        m_t = std::move(t);
-    }
-    /*-----------------------------------------------
-    *
-    * スレッド内部で実行する処理
-    *
-    -----------------------------------------------*/
-    void ProcOperateAuto::launch(void)
-    {
-        try
-        {
-            /* スレッドの実行の管理 */
-            if (!thread::enable("operate_auto"))
-                return;
-            while (manage_thread_int(false))
-            {
-                if (m_control_data.m_start_flag->read() &
-                    !m_control_data.m_reset_flag->read())
-                {
-                    load();
-                    if (m_is_print)
-                        print();
-                }
-                if (!m_orders.empty())
-                    execute();
-            }
-        }
-        catch (std::string err)
-        {
-            std::cout << "*** error ***\n"
-                      << err << std::endl;
-            *m_control_data.m_exit_flag = true;
-            return;
-        }
-        catch (std::exception &e)
-        {
-            std::cout << "*** error ***\n"
-                      << __PRETTY_FUNCTION__ << "\n"
-                      << e.what() << std::endl;
-            *m_control_data.m_exit_flag = true;
-            return;
-        }
     }
     /*-----------------------------------------------
     *

@@ -138,8 +138,8 @@ cv::Point rot(cv::Point in, double theta)
 }
 void draw_robot(cv::Mat img, Chassis &chassis, Imu &imu, size_t margin, double scale)
 {
-    double ridge = 256 * scale;                                   /* 辺の長さ */
-    double wheel_offset = 40 * scale;                             /* 角から車輪までの距離 */
+    double ridge = 256 * scale;                                 /* 辺の長さ */
+    double wheel_offset = 40 * scale;                           /* 角から車輪までの距離 */
     double wheel_base_size = 100.0 / chassis.max_rpm() * scale; /* 車輪の基本の大きさ */
 
     const cv::Point SHIFT(WINDOW_SIZE.width - ridge / 2 - margin,
@@ -250,19 +250,10 @@ void thread_display(jibiki::ShareVar<bool> &exit_flag,
             pushed_key = cv::waitKey(1);                /* キー入力 */
         }
     }
-    catch (std::string err)
+    catch (const std::exception &e)
     {
-        std::cout << "*** error ***\n"
-                  << err << std::endl;
+        jibiki::print_err(__PRETTY_FUNCTION__);
         exit_flag = true;
-        return;
-    }
-    catch (std::exception &e)
-    {
-        std::cout << "*** error ***\n"
-                  << __PRETTY_FUNCTION__ << "\n"
-                  << e.what() << std::endl;
-        exit_flag = true;
-        return;
+        return; /* 最上部 */
     }
 }

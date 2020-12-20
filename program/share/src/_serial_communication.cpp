@@ -1,13 +1,21 @@
-#include <stdlib.h>
+/* Last updated : 2020/10/06, 00:38 */
+/* C++ */
 #include <vector>
+#include <stdexcept>
+/* UNIX */
+#include <unistd.h>
 #include <sys/select.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+/* jibiki */
 #include "../inc/_serial_communication.hpp"
 
 namespace jibiki
 {
 	/*-----------------------------------------------
 	 *
-	 * 初期化
+	 * コンストラクタ
 	 *
 	-----------------------------------------------*/
 	Com::Com(std::string path,
@@ -15,36 +23,22 @@ namespace jibiki
 			 size_t size_rx_raw_data,
 			 int brate,
 			 std::string name)
+		: m_rx(m_size_rx_raw),
+		  m_tx(m_size_tx_raw),
+		  m_name(name),
+		  m_size_tx_raw(size_tx_raw_data),
+		  m_size_rx_raw(size_rx_raw_data),
+		  m_size_tx_prot(size_tx_raw_data * 2 + 3),
+		  m_size_rx_prot(size_rx_raw_data * 2 + 3),
+		  m_is_refreshed(false),
+		  m_brate(brate),
+		  m_path(path),
+		  m_time_s_tx(get_time()),
+		  m_time_s_rx(get_time()),
+		  m_rx_complete_cnt(),
+		  m_rx_freq()
 	{
-		/* メンバ変数を設定 */
-		m_is_refreshed = false;
-		m_path = path;
-		m_size_tx_raw = size_tx_raw_data;
-		m_size_tx_prot = size_tx_raw_data * 2 + 3;
-		m_tx.resize(m_size_tx_raw);
-		m_size_rx_raw = size_rx_raw_data;
-		m_size_rx_prot = size_rx_raw_data * 2 + 3;
-		m_rx.resize(m_size_rx_raw);
-		m_brate = brate;
-		m_name = name;
-
-		/* 初期化 */
-		m_time_s_tx = get_time();
-		m_time_s_rx = get_time();
-
-		/* 初期化 */
 		setup();
-
-		printf("Com was constructed.(%s)\n", m_name.c_str());
-	}
-	/*-----------------------------------------------
-	 *
-	 * 終了処理
-	 *
-	-----------------------------------------------*/
-	Com::~Com()
-	{
-		destroy();
 	}
 
 	/*-----------------------------------------------
@@ -105,7 +99,7 @@ namespace jibiki
 	 * 受信周波数を取得する
 	 *
 	-----------------------------------------------*/
-	double Com::get_rx_freq(double sampling_period_ms)
+	double Com::get_rx_freq(double sampling_period_ms) noexcept
 	{
 		double passed_time_ms =
 			calc_sec(m_time_s_rx, get_time()) * 1E3;
@@ -125,7 +119,7 @@ namespace jibiki
 	 * 送信データをプロトコルの形に変換する
 	 *
 	-----------------------------------------------*/
-	std::vector<uint8_t> Com::protocol_tx(std::vector<uint8_t> in)
+	std::vector<uint8_t> Com::protocol_tx(std::vector<uint8_t> in) const
 	{
 		std::vector<uint8_t> out(m_size_tx_prot);
 
@@ -158,15 +152,15 @@ namespace jibiki
 	 * 例外：std::string
 	 *
 	-----------------------------------------------*/
-	std::vector<uint8_t> Com::protocol_rx(std::vector<uint8_t> in)
+	std::vector<uint8_t> Com::protocol_rx(std::vector<uint8_t> in) const
 	{
 		/* エラーチェック */
-		if (in.size() < m_size_rx_prot)
+		if (in.size() != m_size_rx_prot)
 		{
 			std::stringstream sstr;
-			sstr << __PRETTY_FUNCTION__ << std::endl;
-			sstr << "vector のサイズが無効です [" << in.size() << "]\n";
-			throw sstr.str();
+			sstr << "引数の要素数が不適切です [" << in.size() << "]";
+			jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+			throw std::runtime_error(""); /* エラー発生 */
 		}
 
 		/* プロトコルのエラーチェック */
@@ -217,7 +211,6 @@ namespace jibiki
 	/*-----------------------------------------------
 	 *
 	 * ポートを開く
-	 * 例外：std::string
 	 *
 	-----------------------------------------------*/
 	void Com::setup(void)
@@ -226,9 +219,9 @@ namespace jibiki
 		if (m_fd < 0)
 		{
 			std::stringstream sstr;
-			sstr << __PRETTY_FUNCTION__ << std::endl;
-			sstr << "open err, [" << m_name << "] " << m_path << std::endl;
-			throw sstr.str();
+			sstr << "open err, [" << m_name << "] " << m_path;
+			jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+			throw std::runtime_error(""); /* エラー発生 */
 		}
 
 		/*-----------------------------------------------
@@ -256,7 +249,7 @@ namespace jibiki
 	 * ポートを閉じる
 	 *
 	-----------------------------------------------*/
-	void Com::destroy(void)
+	void Com::destroy(void) const noexcept
 	{
 		close(m_fd);
 	}
@@ -266,7 +259,7 @@ namespace jibiki
 	 * メンバのポートから 1 バイトのデータを受信する
 	 *
 	-----------------------------------------------*/
-	bool Com::serial_one_byte_read(uint8_t *data)
+	bool Com::serial_one_byte_read(uint8_t *data) const noexcept
 	{
 		/*-----------------------------------------------
 		select に必要な変数を用意
@@ -374,63 +367,81 @@ namespace jibiki
 			  size_tx_raw_data,
 			  size_rx_raw_data,
 			  brate,
-			  name)
+			  name),
+		  m_cur_param_index(0),
+		  m_param_set(param_set)
+
 	{
-		m_param_set = param_set;
+		/* パラメータ設定 */
 		if (param_set)
 		{
-			m_cur_param_index = 0;
-			init_set_param(json_path);
+			load_json(json_path);
 			set_param();
 		}
+		printf("ParamCom(%s) was constructed.\n", m_name.c_str());
 	}
 	/*-----------------------------------------------
 	 *
-	 * Com::set_param の初回処理
+	 * JSON ファイルからパラメータを読み込む
 	 *
 	-----------------------------------------------*/
-	void ParamCom::init_set_param(std::string json_path)
+	void ParamCom::load_json(std::string json_path)
 	{
 		/* using 宣言 */
 		using picojson::array;
 		using picojson::object;
 
 		/* エラーチェック */
-		if (m_size_tx_raw < m_param_unit_num * 2 + 1 || m_size_rx_raw < 1)
+		if (m_size_tx_raw < m_PARAM_UNIT_NUM * 2 + 1 || m_size_rx_raw < 1)
 		{
 			std::stringstream sstr;
-			sstr << __PRETTY_FUNCTION__ << std::endl;
-			sstr << "サイズが無効です (tx : " << m_size_tx_raw
-				 << ", rx : " << m_size_rx_raw << ")" << std::endl;
-			sstr << "tx >= " << m_param_unit_num * 2 + 1
-				 << " && rx >= 1 を満たさなければならない" << std::endl;
-			throw sstr.str();
+			sstr << "引数の値が不適切です． (tx : " << m_size_tx_raw
+				 << ", rx : " << m_size_rx_raw << ")\n"
+				 << "tx >= " << m_PARAM_UNIT_NUM * 2 + 1
+				 << " && rx >= 1 を満たさなければならない．";
+			jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+			throw std::runtime_error(""); /* エラー発生 */
 		}
 
-		/* json ファイルから読み込む */
-		picojson::value json_val = load_json_file(json_path);
-		array &param_array = json_val.get<object>()[m_name]
-								 .get<array>();
-
-		/* パラメータを抽出 */
-		for (size_t i = 0; i < param_array.size(); ++i)
+		try
 		{
-			/* エラーチェック */
-			if (param_array[i].get<array>().size() != 3)
+			/* json ファイルを読み込む準備 */
+			picojson::value json_val = load_json_file(json_path);
+			array &param_array = json_val.get<object>()[m_name]
+									 .get<array>();
+
+			for (const auto &i : param_array)
 			{
-				std::stringstream sstr;
-				sstr << __PRETTY_FUNCTION__ << std::endl;
-				sstr << "パラメータの書式が違います" << std::endl;
-				throw sstr.str();
+				/* エラーチェック */
+				if (i.get<array>().size() != 3)
+				{
+					std::stringstream sstr;
+					sstr << json_path << " の書式が不適切です．";
+					throw sstr.str(); /* エラー発生 */
+				}
+				/* パラメータを読み込む */
+				m_param.emplace_back((int16_t)(i.get<array>()[1].get<double>()));
+				m_param.emplace_back((int16_t)(i.get<array>()[2].get<double>()));
 			}
-			m_param.push_back((int16_t)(param_array[i].get<array>()[1].get<double>()));
-			m_param.push_back((int16_t)(param_array[i].get<array>()[2].get<double>()));
+		}
+		catch (const std::exception &e)
+		{
+			/* param_array の初期化時のエラー */
+			std::stringstream sstr;
+			sstr << json_path << " に " << m_name
+				 << "のパラメータの項目がありません．";
+			jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+			throw std::runtime_error(""); /* エラー発生 */
+		}
+		catch (std::string e)
+		{
+			jibiki::print_err(__PRETTY_FUNCTION__, e);
+			throw std::runtime_error(""); /* エラー発生 */
 		}
 	}
 	/*-----------------------------------------------
 	 *
 	 * スレーブのパラメータを設定する
-	 * 例外：std::string
 	 *
 	-----------------------------------------------*/
 	void ParamCom::set_param(void)
@@ -439,10 +450,10 @@ namespace jibiki
 		{
 			/* 送信データにパラメータをセットする */
 			m_tx[0] = m_cur_param_index + 1;
-			m_tx[1] = up(m_param[m_cur_param_index * m_param_unit_num]);
-			m_tx[2] = low(m_param[m_cur_param_index * m_param_unit_num]);
-			m_tx[3] = up(m_param[m_cur_param_index * m_param_unit_num + 1]);
-			m_tx[4] = low(m_param[m_cur_param_index * m_param_unit_num + 1]);
+			m_tx[1] = up(m_param[m_cur_param_index * m_PARAM_UNIT_NUM]);
+			m_tx[2] = low(m_param[m_cur_param_index * m_PARAM_UNIT_NUM]);
+			m_tx[3] = up(m_param[m_cur_param_index * m_PARAM_UNIT_NUM + 1]);
+			m_tx[4] = low(m_param[m_cur_param_index * m_PARAM_UNIT_NUM + 1]);
 			send();
 
 			/* 設定の完了を待つ */
@@ -450,13 +461,13 @@ namespace jibiki
 			{
 				printf("[%s] %d / %d\t: [%d, %d]\n",
 					   m_name.c_str(), m_cur_param_index + 1, m_param.size() / 2,
-					   m_param[m_cur_param_index * m_param_unit_num],
-					   m_param[m_cur_param_index * m_param_unit_num + 1]);
+					   m_param[m_cur_param_index * m_PARAM_UNIT_NUM],
+					   m_param[m_cur_param_index * m_PARAM_UNIT_NUM + 1]);
 				++m_cur_param_index;
 			}
 
 			/* 終了処理 */
-			if (m_cur_param_index + 1 > m_param.size() / 2)
+			if (m_param.size() / 2 <= m_cur_param_index)
 			{
 				printf("set param complete.\n");
 				m_tx[0] = 0xFF;
@@ -474,11 +485,11 @@ namespace jibiki
 		if (index == 0 && m_param_set == true)
 		{
 			std::stringstream sstr;
-			sstr << __PRETTY_FUNCTION__ << std::endl;
-			sstr << "\".tx(0)\" は変更しないでください" << std::endl;
-			throw sstr.str();
+			sstr << "\"ParamCom::tx(0)\" は変更しないでください";
+			jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+			throw std::runtime_error(""); /* エラー発生 */
 		}
-		return m_tx[index];
+		return m_tx.at(index);
 	}
 
 	/*-----------------------------------------------
@@ -489,22 +500,14 @@ namespace jibiki
 	ProcParamCom::ProcParamCom(ShareVar<bool> &exit_flag,
 							   std::vector<ProcParamCom::ComFunc> com_func,
 							   std::string json_path)
+		: m_exit_flag(&exit_flag),
+		  m_com_func(com_func),
+		  m_json_path(json_path)
 	{
-		init(exit_flag, com_func, json_path);
-
 		std::thread t([this] {
 			this->launch();
 		});
 		m_t = std::move(t);
-	}
-
-	void ProcParamCom::init(ShareVar<bool> &exit_flag,
-							std::vector<ComFunc> com_func,
-							std::string json_path)
-	{
-		m_exit_flag = &exit_flag;
-		m_com_func = com_func;
-		m_json_path = json_path;
 	}
 
 	void ProcParamCom::launch(void)
@@ -516,7 +519,7 @@ namespace jibiki
 				return;
 
 			/* 設定ファイル読み込み */
-			load_setting();
+			load_json();
 
 			/* ComFunc を順番に実行する */
 			while (thread::manage(*m_exit_flag))
@@ -524,43 +527,67 @@ namespace jibiki
 					if (m_enable[i])
 						m_com_func[i](m_path[i], m_name[i]);
 		}
-		catch (std::string err)
+		catch (const std::exception &e)
 		{
-			std::cout << "*** error ***\n"
-					  << err << std::endl;
+			print_err(__PRETTY_FUNCTION__);
 			*m_exit_flag = true;
-			return;
-		}
-		catch (std::exception &e)
-		{
-			std::cout << "*** error ***\n"
-					  << __PRETTY_FUNCTION__ << "\n"
-					  << e.what() << std::endl;
-			*m_exit_flag = true;
-			return;
+			return; /* 最上部 */
 		}
 	}
 
 	/* 設定ファイル読み込み */
-	void ProcParamCom::load_setting(void)
+	void ProcParamCom::load_json(void)
 	{
 		/* using 宣言 */
 		using picojson::array;
 		using picojson::object;
 
-		/* JSON ファイルを開く */
-		picojson::value json_val = load_json_file(m_json_path);
-		array &root_array = json_val
-								.get<object>()["com"]
-								.get<array>();
+		size_t com_num; /* Com の個数 */
 
-		/* name, enable, path を読み込む */
-		for (size_t i = 0; i < root_array.size(); ++i)
+		/*-----------------------------------------------
+		値を読み込む
+		-----------------------------------------------*/
+		try
 		{
-			array com_array = root_array[i].get<array>();
-			m_name.push_back(com_array[0].get<std::string>());
-			m_enable.push_back(com_array[1].get<bool>());
-			m_path.push_back(com_array[2].get<std::string>());
+			/* JSON ファイルを開く */
+			picojson::value json_val = load_json_file(m_json_path);
+			array &root_array = json_val
+									.get<object>()["com"]
+									.get<array>();
+			com_num = root_array.size();
+
+			for (const auto &i : root_array)
+			{
+				array com_array = i.get<array>();
+				/* エラーチェック */
+				if (com_array.size() != 3)
+					throw std::runtime_error(""); /* エラー発生 */
+				/* name, enable, path を読み込む */
+				m_name.emplace_back(com_array[0].get<std::string>());
+				m_enable.emplace_back(com_array[1].get<bool>());
+				m_path.emplace_back(com_array[2].get<std::string>());
+			}
+		}
+		catch (const std::exception &e)
+		{
+			std::stringstream sstr;
+			sstr << m_json_path << " 中の com の書式が不適切です．";
+			jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+			throw std::runtime_error(""); /* エラー発生 */
+		}
+
+		/*-----------------------------------------------
+		com_func の要素数の確認
+		-----------------------------------------------*/
+		/* TODO : 動作確認 */
+		if (com_num != m_com_func.size())
+		{
+			std::stringstream sstr;
+			sstr << "jibiki::ProcParamCom::ProcParamCom() "
+				 << "の引数である com_func の要素数と\n"
+				 << m_json_path << " 中の com の要素数が一致しません．";
+			jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+			throw std::runtime_error(""); /* エラー発生 */
 		}
 	}
 
