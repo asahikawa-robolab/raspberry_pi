@@ -345,10 +345,19 @@ namespace jibiki
                 size_t seq[] = {seq1, seq2, seq3};
                 try
                 {
+                    /* 開始 */
+                    std::cout << "[ " << seq1 << ", " << seq2 << ", " << seq3
+                              << " ] start" << std::endl;
+
+                    /* 実行 */
                     size_t mode_index = itr - m_modes.begin();
                     m_mode_func[mode_index](this,
                                             m_orders[order_index].m_param,
                                             seq);
+
+                    /* 終了 */
+                    std::cout << "\t\t\t[ " << seq1 << ", " << seq2 << ", "
+                              << seq3 << " ] finish" << std::endl;
                 }
                 catch (const std::exception &e)
                 {
