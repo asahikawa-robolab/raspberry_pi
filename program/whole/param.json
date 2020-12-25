@@ -1,5 +1,10 @@
 {
-    "rot": [
+    "com_pwm_control": [
+        ["enable", 1, 0],
+        ["max pwm", 30, 30],
+        ["max pwm change", 20, 20]
+    ],
+    "com_rot_control": [
         ["enable", 1, 0],
         ["zero point pwm", 30, 30],
         ["max pwm", 80, 100],
