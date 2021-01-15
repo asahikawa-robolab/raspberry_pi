@@ -40,7 +40,9 @@ int main(void)
     -----------------------------------------------*/
     jibiki::ProcParamCom com(std::ref(exit_flag),
                              {com_pwm_control,
+                              com_rev_control,
                               com_rot_control,
+                              com_odmetry_control,
                               com_chassis_f,
                               com_chassis_b,
                               com_switch,
@@ -55,7 +57,8 @@ int main(void)
                                               std::ref(current_method),
                                               std::ref(execute_orders),
                                               std::ref(executing_order),
-                                              {test, pwm});
+                                              {test, pwm, rev, rot,
+                                               odometry});
     /*-----------------------------------------------
     手動制御
     -----------------------------------------------*/
