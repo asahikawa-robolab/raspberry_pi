@@ -11,7 +11,11 @@
         ["stop pwm", 10, 10],
         ["kp", 20, 20],
         ["encoder pol", 1, 1],
+<<<<<<< HEAD
         ["encoder resolution", 300, 300]
+=======
+        ["encoder resolution", 384, 300]
+>>>>>>> 6aad66e... [大平]変数の調整
     ],
     "com_rot_control": [
         ["enable", 1, 0],
@@ -24,7 +28,11 @@
         ["kp", 100, 100],
         ["permissible err", 1, 1],
         ["encoder pol", 1, 1],
+<<<<<<< HEAD
         ["encoder resolution", 300, 300]
+=======
+        ["encoder resolution", 384, 300]
+>>>>>>> 6aad66e... [大平]変数の調整
     ],
     "com_odometry_control": [
         ["encoder pol", 0, 0],

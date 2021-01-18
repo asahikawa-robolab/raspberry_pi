@@ -3,6 +3,8 @@
 #include "../../share/inc/_std_func.hpp"
 #include "../inc/ext_var.hpp"
 
+#include <inttypes.h>
+
 void test(jibiki::ProcOperateAuto *control,
           std::vector<std::string> param,
           size_t seq[])
@@ -47,9 +49,135 @@ void pwm(jibiki::ProcOperateAuto *control,
 //       seq[0], seq[1], seq[2], name, tgt_pwm);
     
     if(name == "motor_1")
-        g_pwm[0] = tgt_pwm;
+        g_pwm_tgt[0] = tgt_pwm;
     else if(name == "motor_2")
-        g_pwm[1] = tgt_pwm;
+        g_pwm_tgt[1] = tgt_pwm;
+    else
+    {
+        std::stringstream sstr;
+        sstr << __PRETTY_FUNCTION__ << "name が一致しません";
+        throw sstr.str();
+    }
+}
+
+void rev(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[])
+{
+    /* パラメータ取得 */
+    std::string name = param[0];
+    short tgt_rev = std::stoi(param[1]);
+
+
+    if(name == "motor_1")
+    {
+        g_rev_tgt[0] = tgt_rev;
+        while(control->manage_thread_int())
+        {
+            if(abs(g_rev_tgt[0].read() - g_rev_curr[0].read()) < 5)
+                break;
+        }
+    }
+    else if(name == "motor_2")
+    {
+        g_rev_tgt[1] = tgt_rev;
+        while(control->manage_thread_int())
+        {
+            if(abs(g_rev_tgt[1].read() - g_rev_curr[1].read()) < 5)
+                break;
+        }
+    }
+    else
+    {
+        std::stringstream sstr;
+        sstr << __PRETTY_FUNCTION__ << "name が一致しません";
+        throw sstr.str();
+    }
+}
+
+void rot(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[])
+{
+    /* パラメータ取得 */
+    std::string name = param[0];
+    short tgt_rot = std::stoi(param[1]);
+
+
+    if(name == "motor_1")
+    {
+        g_rot_tgt[0] = tgt_rot;
+        while(1)
+        {
+            if(!control->manage_thread_int())
+                break;
+            if(abs(g_rev_tgt[0].read() - g_rot_curr[0].read()) < 5)
+                printf("a");
+                // break;
+        }
+    }
+    else if(name == "motor_2")
+    {
+        g_rot_tgt[1] = tgt_rot;
+        while(1)
+        {
+            if(!control->manage_thread_int())
+                break;
+            if(abs(g_rev_tgt[1].read() - g_rot_curr[1].read()) < 5)
+                break;
+        }
+    }
+    else
+    {
+        std::stringstream sstr;
+        sstr << __PRETTY_FUNCTION__ << "name が一致しません";
+        throw sstr.str();
+    }
+}
+
+void odometry(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[])
+{
+    /* パラメータ取得 */
+    std::string name = param[0];
+    int64_t tgt_dist = std::stoi(param[1]);
+
+    g_odometry_flag[0] = 1;
+    g_odometry_flag[1] = 1;
+    printf("%"PRIx64"\n", tgt_dist);
+    /* 鉛直方向のオドメーター */
+    if(name == "odometry_1")
+    {
+        /* odometryのリセット */
+        g_dist_tgt[0] = tgt_dist;
+        g_odometry_flag[0] = 0;
+        while(1)
+        {
+            printf("%"PRIx64"\n", tgt_dist - g_dist_curr[0].read());
+            if(!control->manage_thread_int())
+                break;  
+            if(abs(tgt_dist - g_dist_curr[0].read()) < 5)
+            {
+                printf("match\n");
+                // break;
+            }   
+        }
+    }
+    /* 水平方向のオドメーター */
+    else if(name == "odometry_2")
+    {
+        /* odometryのリセット */
+        g_dist_tgt[1] = tgt_dist;
+        g_odometry_flag[1] = 0;
+        while(1)
+        {
+            if(!control->manage_thread_int())
+                break;
+            if(abs(tgt_dist - g_dist_tgt[1].read()) < 5)
+                break;
+        }
+    }
     else
     {
         std::stringstream sstr;

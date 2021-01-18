@@ -17,7 +17,11 @@
             "name": "order2",
             "seq": [1, 0, 0],
             "mode": "odometry",
+<<<<<<< HEAD
             "param": ["odometry_1", "1000"]
+=======
+            "param": ["odometry_1", "360"]
+>>>>>>> 6aad66e... [大平]変数の調整
         },
         {
             "name": "order3",
