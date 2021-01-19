@@ -41,31 +41,6 @@ void com_rev_control(std::string path, std::string name)
     }
 }
 
-void com_rev_control(std::string path, std::string name)
-{
-    static jibiki::ParamCom com(path, 5, 6, B57600, name, true);
-
-    /* 送信 */
-    com.tx(1) = jibiki::up(g_rev[0].read());
-    com.tx(2) = jibiki::low(g_rev[0].read());
-    com.tx(3) = jibiki::up(g_rev[1].read());
-    com.tx(4) = jibiki::low(g_rev[1].read());
-    com.send();
-
-    /* 受信 */
-    if (com.receive())
-    {     
-        g_rev_diff[0] = jibiki::asbl(com.rx(0), com.rx(1));/* 偏差じゃないから */
-        g_rev_diff[1] = jibiki::asbl(com.rx(2), com.rx(3));/* 偏差じゃないから */
-
-        printf("motor_1 target %d, curr %d, pwm %d\nmotor_2 target %d, curr %d, pwm %d\n", 
-                g_rev[0].read(), jibiki::asbl(com.rx(0), com.rx(1)),
-                (int8_t)com.rx(4),
-                g_rev[1].read(), jibiki::asbl(com.rx(2), com.rx(3)),
-                (int8_t)com.rx(5));
-    }
-}
-
 void com_rot_control(std::string path, std::string name)
 {
     static jibiki::ParamCom com(path, 5, 6, B57600, name, true);
