@@ -9,8 +9,8 @@
     "com": [
         ["com_pwm_control",        false,       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI057A81-if00-port0"],
         ["com_rev_control",        false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579ZQ-if00-port0"],
-        ["com_rot_control",        false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579ZQ-if00-port0"],
-        ["com_odometry_control",   true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579ZQ-if00-port0"],
+        ["com_rot_control",        true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI057A81-if00-port0"],
+        ["com_odometry_control",   false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI057A81-if00-port0"],
         ["chassis_f",              false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LQ-if00-port0"],
         ["chassis_b",              false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LQ-if00-port0"],
         ["switch",                 false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A906V9YT-if00-port0"],

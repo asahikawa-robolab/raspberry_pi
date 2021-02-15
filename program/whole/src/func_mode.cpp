@@ -74,6 +74,8 @@ void rev(jibiki::ProcOperateAuto *control,
         g_rev_tgt[0] = tgt_rev;
         while(control->manage_thread_int())
         {
+            if(!control->manage_thread_int())
+                break;
             if(abs(g_rev_tgt[0].read() - g_rev_curr[0].read()) < 5)
                 break;
         }
@@ -83,6 +85,8 @@ void rev(jibiki::ProcOperateAuto *control,
         g_rev_tgt[1] = tgt_rev;
         while(control->manage_thread_int())
         {
+            if(!control->manage_thread_int())
+                break;
             if(abs(g_rev_tgt[1].read() - g_rev_curr[1].read()) < 5)
                 break;
         }
@@ -101,7 +105,7 @@ void rot(jibiki::ProcOperateAuto *control,
 {
     /* パラメータ取得 */
     std::string name = param[0];
-    short tgt_rot = std::stoi(param[1]);
+    int16_t tgt_rot = std::stoi(param[1]);
 
 
     if(name == "motor_1")
@@ -110,10 +114,9 @@ void rot(jibiki::ProcOperateAuto *control,
         while(1)
         {
             if(!control->manage_thread_int())
-                break;
-            if(abs(g_rev_tgt[0].read() - g_rot_curr[0].read()) < 5)
+                break;  
+            if(abs(g_rot_curr[0].read()) < 5)
                 printf("a");
-                // break;
         }
     }
     else if(name == "motor_2")
@@ -123,7 +126,7 @@ void rot(jibiki::ProcOperateAuto *control,
         {
             if(!control->manage_thread_int())
                 break;
-            if(abs(g_rev_tgt[1].read() - g_rot_curr[1].read()) < 5)
+            if(abs(g_rot_curr[1].read()) < 5)
                 break;
         }
     }
@@ -157,11 +160,8 @@ void odometry(jibiki::ProcOperateAuto *control,
             printf("%"PRIx64"\n", tgt_dist - g_dist_curr[0].read());
             if(!control->manage_thread_int())
                 break;  
-            if(abs(tgt_dist - g_dist_curr[0].read()) < 5)
-            {
-                printf("match\n");
-                // break;
-            }   
+            if(abs(g_dist_tgt[0].read() - g_dist_curr[0].read()) < 5)
+                break;
         }
     }
     /* 水平方向のオドメーター */
@@ -174,7 +174,7 @@ void odometry(jibiki::ProcOperateAuto *control,
         {
             if(!control->manage_thread_int())
                 break;
-            if(abs(tgt_dist - g_dist_tgt[1].read()) < 5)
+            if(abs(g_dist_tgt[1].read() - g_dist_tgt[1].read()) < 5)
                 break;
         }
     }

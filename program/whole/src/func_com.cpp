@@ -57,7 +57,7 @@ void com_rot_control(std::string path, std::string name)
     {
         g_rot_curr[0] = jibiki::asbl(com.rx(0), com.rx(1));
         g_rot_curr[1] = jibiki::asbl(com.rx(2), com.rx(3));
-        printf("motor_1 target %d, curr %d, pwm %d\tmotor_2 target %d, curr %d, pwm %d\n", 
+        printf("motor_1 target %d, curr %d, pwm %d\t motor_2 target %d, curr %d, pwm %d\n", 
                 g_rot_tgt[0].read(), jibiki::asbl(com.rx(0), com.rx(1)),
                 (int8_t)com.rx(4),
                 g_rot_tgt[1].read(), jibiki::asbl(com.rx(2), com.rx(3)),
@@ -85,7 +85,7 @@ void com_odmetry_control(std::string path, std::string name)
         g_dist_curr[1] = g_dist_curr[1].read() | (com.rx(5) << 8);
         g_dist_curr[1] = g_dist_curr[1].read() | (com.rx(6) << 16);
         g_dist_curr[1] = g_dist_curr[1].read() | (com.rx(7) << 24);
-        // printf("%"PRIx64", %"PRIx64"\n", g_dist_curr[0].read(), g_dist_curr[1].read());
+        printf("%"PRIx64", %"PRIx64"\n", g_dist_curr[0].read(), g_dist_curr[1].read());
     }
 }
 

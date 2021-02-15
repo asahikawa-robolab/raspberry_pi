@@ -16,8 +16,8 @@
         {
             "name": "order2",
             "seq": [1, 0, 0],
-            "mode": "odometry",
-            "param": ["odometry_1", "1000"]
+            "mode": "rot",
+            "param": ["motor_1", "360"]
         },
         {
             "name": "order3",
@@ -28,8 +28,8 @@
         {
             "name": "order4",
             "seq": [3, 0, 0],
-            "mode": "odometry",
-            "param": ["odometry_1", "0"]
+            "mode": "rot",
+            "param": ["motor_1", "0"]
         },
         {
             "name": "order5",

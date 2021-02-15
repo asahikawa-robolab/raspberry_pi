@@ -24,7 +24,7 @@
         ["kp", 100, 100],
         ["permissible err", 1, 1],
         ["encoder pol", 1, 1],
-        ["encoder resolution", 384, 300]
+        ["encoder resolution", 300, 300]
     ],
     "com_odometry_control": [
         ["encoder pol", 0, 0],
