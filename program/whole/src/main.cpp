@@ -43,6 +43,7 @@ int main(void)
                               com_rev_control,
                               com_rot_control,
                               com_odmetry_control,
+                              com_limit,
                               com_chassis_f,
                               com_chassis_b,
                               com_switch,
@@ -58,7 +59,7 @@ int main(void)
                                               std::ref(execute_orders),
                                               std::ref(executing_order),
                                               {test, pwm, rev, rot,
-                                               odometry});
+                                               odometry, limit});
     /*-----------------------------------------------
     手動制御
     -----------------------------------------------*/

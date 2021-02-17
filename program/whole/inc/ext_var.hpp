@@ -11,6 +11,7 @@ extern jibiki::ShareVar<int16_t> g_rot_curr[4];      /* 回転角現在地 */
 extern jibiki::ShareVar<int64_t>g_dist_tgt[2];     /* 移動距離目標値 */
 extern jibiki::ShareVar<int64_t>g_dist_curr[2];    /* 移動距離 */
 extern jibiki::ShareVar<bool>  g_odometry_flag[2]; /* odometry_リセットフラグ */
+extern jibiki::ShareVar<bool>g_limit[8];           /* limitスイッチのon/off */
 extern SwitchData g_switch_data;                   /* スイッチスレーブのデータ */
 extern Imu g_imu;                                  /* IMU のデータ */
 extern Controller g_controller;                    /* コントローラのデータ */

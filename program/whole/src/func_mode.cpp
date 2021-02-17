@@ -3,8 +3,6 @@
 #include "../../share/inc/_std_func.hpp"
 #include "../inc/ext_var.hpp"
 
-#include <inttypes.h>
-
 void test(jibiki::ProcOperateAuto *control,
           std::vector<std::string> param,
           size_t seq[])
@@ -111,17 +109,19 @@ void rot(jibiki::ProcOperateAuto *control,
     if(name == "motor_1")
     {
         g_rot_tgt[0] = tgt_rot;
+        jibiki::usleep(0.5E6);
         while(1)
         {
             if(!control->manage_thread_int())
                 break;  
             if(abs(g_rot_curr[0].read()) < 5)
-                printf("a");
+                break;
         }
     }
     else if(name == "motor_2")
     {
         g_rot_tgt[1] = tgt_rot;
+        jibiki::usleep(0.5E6);
         while(1)
         {
             if(!control->manage_thread_int())
@@ -148,7 +148,6 @@ void odometry(jibiki::ProcOperateAuto *control,
 
     g_odometry_flag[0] = 1;
     g_odometry_flag[1] = 1;
-    printf("%"PRIx64"\n", tgt_dist);
     /* 鉛直方向のオドメーター */
     if(name == "odometry_1")
     {
@@ -157,7 +156,6 @@ void odometry(jibiki::ProcOperateAuto *control,
         g_odometry_flag[0] = 0;
         while(1)
         {
-            printf("%"PRIx64"\n", tgt_dist - g_dist_curr[0].read());
             if(!control->manage_thread_int())
                 break;  
             if(abs(g_dist_tgt[0].read() - g_dist_curr[0].read()) < 5)
@@ -184,4 +182,28 @@ void odometry(jibiki::ProcOperateAuto *control,
         sstr << __PRETTY_FUNCTION__ << "name が一致しません";
         throw sstr.str();
     }
+}
+
+void limit(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[])
+{
+    /* パラメータ取得 */
+    std::string name = param[0];
+
+    while(control->manage_thread_int())
+        if(name == "limit_1")
+        {
+                printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n"
+                ,g_limit[0].read(), g_limit[1].read(), g_limit[2].read() ,g_limit[3].read()
+                ,g_limit[4].read(), g_limit[5].read(), g_limit[6].read(), g_limit[7].read());
+            if(g_limit[0].read() == true)
+                break;
+        }
+        else
+        {
+            std::stringstream sstr;
+            sstr << __PRETTY_FUNCTION__ << "name が一致しません";
+            throw sstr.str();
+        }
 }
