@@ -34,10 +34,10 @@ namespace jibiki
     virtual ~Com(void) { destroy(); } /* 終了処理 */
 
   protected:
-    std::vector<uint8_t> m_rx, m_tx; /* 送信，受信データ */
     std::string m_name;              /* 通信ポートの名前 */
     size_t m_size_tx_raw;            /* もともとの送信データ数 */
     size_t m_size_rx_raw;            /* もともとの受信データ数 */
+    std::vector<uint8_t> m_rx, m_tx; /* 送信，受信データ */
 
   private:
     size_t m_size_tx_prot;       /* 新通信プロトコルでの送信データ数 */

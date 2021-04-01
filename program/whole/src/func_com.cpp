@@ -3,9 +3,20 @@
 #include "../../share/inc/module.hpp"
 #include "../inc/ext_var.hpp"
 
+void com_pwm_control(std::string path, std::string name)
+{
+    static jibiki::ParamCom com(path, 5, 1, B57600, name, true);
+    
+    /* 送信 */
+    com.tx(1) = g_pwm[0].read();
+    com.tx(2) = g_pwm[1].read();
+    com.send();
+
+}
+
 void com_rot_control(std::string path, std::string name)
 {
-    static jibiki::ParamCom com(path, 5, 6, B57600, name, true);
+    static jibiki::ParamCom com(path, 5, 6, B57600, name, false);
 
     /* 送信 */
     com.tx(1) = jibiki::up(g_angle.read());

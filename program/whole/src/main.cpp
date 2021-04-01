@@ -39,7 +39,8 @@ int main(void)
     通信
     -----------------------------------------------*/
     jibiki::ProcParamCom com(std::ref(exit_flag),
-                             {com_rot_control,
+                             {com_pwm_control,
+                              com_rot_control,
                               com_chassis_f,
                               com_chassis_b,
                               com_switch,
@@ -54,7 +55,7 @@ int main(void)
                                               std::ref(current_method),
                                               std::ref(execute_orders),
                                               std::ref(executing_order),
-                                              {test});
+                                              {test, pwm});
     /*-----------------------------------------------
     手動制御
     -----------------------------------------------*/

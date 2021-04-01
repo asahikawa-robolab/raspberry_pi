@@ -1,6 +1,7 @@
 {
     "mode_list": [
-        "test"
+        "test",
+        "pwm"
     ],
     "test": [
         {
@@ -12,26 +13,26 @@
         {
             "name": "order2",
             "seq": [1, 0, 0],
-            "mode": "test",
-            "param": ["4"]
+            "mode": "pwm",
+            "param": ["motor_1", "10"]
         },
         {
             "name": "order3",
-            "seq": [1, 1, 0],
+            "seq": [2, 0, 0],
             "mode": "test",
             "param": ["2"]
         },
         {
             "name": "order4",
-            "seq": [1, 1, 1],
-            "mode": "test",
-            "param": ["1"]
+            "seq": [3, 0, 0],
+            "mode": "pwm",
+            "param": ["motor_1", "0"]
         },
         {
             "name": "order5",
-            "seq": [2, 0, 0],
+            "seq": [4, 0, 0],
             "mode": "test",
-            "param": ["2"]
+            "param": ["200"]
         }
     ]
 }

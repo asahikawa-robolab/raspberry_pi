@@ -5,5 +5,8 @@
 void test(jibiki::ProcOperateAuto *control,
                  std::vector<std::string> param,
                  size_t seq[]);
+void pwm(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[]);
 
 #endif
