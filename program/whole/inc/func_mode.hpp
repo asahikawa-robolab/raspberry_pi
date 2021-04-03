@@ -8,5 +8,17 @@ void test(jibiki::ProcOperateAuto *control,
 void pwm(jibiki::ProcOperateAuto *control,
           std::vector<std::string> param,
           size_t seq[]);
-
+void rev(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[]);
+void rot(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[]);
+void odometry(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[]);
+void limit(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[]);
+          
 #endif
