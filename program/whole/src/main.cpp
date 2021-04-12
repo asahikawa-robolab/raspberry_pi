@@ -55,7 +55,7 @@ int main(void)
                                               std::ref(current_method),
                                               std::ref(execute_orders),
                                               std::ref(executing_order),
-                                              {test, pwm});
+                                              {test, pwm, turn});
     /*-----------------------------------------------
     手動制御
     -----------------------------------------------*/

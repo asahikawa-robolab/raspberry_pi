@@ -36,7 +36,7 @@ void com_rot_control(std::string path, std::string name)
 /* 足回りモータ（右前，左前） */
 void com_chassis_f(std::string path, std::string name)
 {
-    static jibiki::ParamCom com(path, 5, 6, B57600, name, true);
+    static jibiki::ParamCom com(path, 5, 6, B57600, name, false);
     com.tx(1) = jibiki::up(g_chassis.fr());
     com.tx(2) = jibiki::low(g_chassis.fr());
     com.tx(3) = jibiki::up(g_chassis.fl());
@@ -47,7 +47,7 @@ void com_chassis_f(std::string path, std::string name)
 /* 足回りモータ（右後，左後） */
 void com_chassis_b(std::string path, std::string name)
 {
-    static jibiki::ParamCom com(path, 5, 6, B57600, name, true);
+    static jibiki::ParamCom com(path, 5, 6, B57600, name, false);
     com.tx(1) = jibiki::up(g_chassis.br());
     com.tx(2) = jibiki::low(g_chassis.br());
     com.tx(3) = jibiki::up(g_chassis.bl());
