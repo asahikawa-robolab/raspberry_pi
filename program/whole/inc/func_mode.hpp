@@ -17,6 +17,9 @@ void rot(jibiki::ProcOperateAuto *control,
 void odometry(jibiki::ProcOperateAuto *control,
           std::vector<std::string> param,
           size_t seq[]);
+void set_odometry(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[]);
 void limit(jibiki::ProcOperateAuto *control,
           std::vector<std::string> param,
           size_t seq[]);
