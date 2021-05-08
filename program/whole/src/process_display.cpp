@@ -6,7 +6,7 @@
 #include "../../share/inc/_std_func.hpp"
 #include "../inc/ext_var.hpp"
 
-const cv::Size WINDOW_SIZE(450, 500);
+const cv::Size WINDOW_SIZE(450, 400);
 const cv::Scalar COLOR_WHITE(255, 255, 255);
 const cv::Scalar COLOR_RED(50, 50, 255);
 
@@ -229,7 +229,7 @@ void thread_display(jibiki::ShareVar<bool> &exit_flag,
 
         cv::Mat img = cv::Mat::zeros(WINDOW_SIZE, CV_8UC3); /* 画像を作成 */
         cv::namedWindow("window");                          /* ウィンドウを作成 */
-        cv::moveWindow("window", 400, 40);                  /* ウィンドウを移動 */
+        cv::moveWindow("window", 0, 0);                  /* ウィンドウを移動 */
 
         while (jibiki::thread::manage(exit_flag))
         {

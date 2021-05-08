@@ -21,15 +21,41 @@ void thread_manual(jibiki::ShareVar<bool> &exit_flag,
             double theta = g_controller.theta(Controller::MODE_L, Controller::DIR_INF);
             g_chassis.m_speed = speed * 1E-2 * g_chassis.max_rpm();
             g_chassis.m_theta = theta;
-            /* 旋回 */
-            if (g_controller.tact_mu())
+             /* 旋回 */
+            if (g_controller.l_cross_r())
                 g_chassis.m_spin = jibiki::deg_rad(0);
-            if (g_controller.tact_ld())
+            if (g_controller.l_cross_u())
                 g_chassis.m_spin = jibiki::deg_rad(90);
-            if (g_controller.tact_md())
+            if (g_controller.l_lever_l())
                 g_chassis.m_spin = jibiki::deg_rad(180);
+            if (g_controller.l_cross_d())
+                g_chassis.m_spin = jibiki::deg_rad(270);
+
+            //昇降
+            if (g_controller.l_switch_u())
+                g_rev_tgt[0] = 30;
+            if (g_controller.l_switch_m())
+                g_rev_tgt[0] = 0;
+            if (g_controller.l_switch_d())
+                g_rev_tgt[0] = 30;
+
+            //ピッチング
+            if (g_controller.tact_lu())
+                g_pitting_rev = 0; //ここの値を変える
+            if (g_controller.tact_mu())
+                g_pitting_rev = 0;
+            if (g_controller.tact_ru())
+                g_pitting_rev = 0;
+            if (g_controller.tact_ld())
+                g_pitting_rev = 0;
+            if (g_controller.tact_md())
+                g_pitting_rev = 0;
             if (g_controller.tact_rd())
-                g_chassis.m_spin = jibiki::deg_rad(-90);
+                g_pitting_rev = 0;
+
+            if (g_controller.r_cross_r())
+                g_rev_tgt[1] = g_pitting_rev;
+            //printf("aaaa");
         }
     }
     catch (const std::exception &e)
