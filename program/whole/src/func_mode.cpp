@@ -63,6 +63,9 @@ void turn(jibiki::ProcOperateAuto *control,
     while(control->manage_thread_int())
     {
         if(abs(jibiki::rad_deg(g_imu.read()) - tgt_angle) < 5)
+        {
+            g_chassis.stop();
             break;
+        }
     } 
 }

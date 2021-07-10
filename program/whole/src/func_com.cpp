@@ -42,6 +42,13 @@ void com_chassis_f(std::string path, std::string name)
     com.tx(3) = jibiki::up(g_chassis.fl());
     com.tx(4) = jibiki::low(g_chassis.fl());
     com.send();
+
+    if (com.receive())
+    {
+        printf("fr:target %lf, curr %d\t", g_chassis.fr(), jibiki::asbl(com.rx(0), com.rx(1)));
+
+        printf("fl:target %lf, curr %d\n", g_chassis.fl(), jibiki::asbl(com.rx(2), com.rx(3)));
+    }
 }
 
 /* 足回りモータ（右後，左後） */
@@ -53,6 +60,13 @@ void com_chassis_b(std::string path, std::string name)
     com.tx(3) = jibiki::up(g_chassis.bl());
     com.tx(4) = jibiki::low(g_chassis.bl());
     com.send();
+
+    if (com.receive())
+    {
+        printf("br:target %lf, curr %d\t", g_chassis.br(), jibiki::asbl(com.rx(0), com.rx(1)));
+
+        printf("bl:target %lf, curr %d\n", g_chassis.bl(), jibiki::asbl(com.rx(2), com.rx(3)));
+    }
 }
 
 void com_switch(std::string path, std::string name)
