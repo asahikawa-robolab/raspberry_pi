@@ -1,7 +1,8 @@
 {
     "mode_list": [
         "test",
-        "pwm"
+        "pwm",
+        "turn"
     ],
     "test": [
         {
@@ -13,24 +14,12 @@
         {
             "name": "order2",
             "seq": [1, 0, 0],
-            "mode": "pwm",
-            "param": ["motor_1", "10"]
-        },
-        {
-            "name": "order3",
-            "seq": [2, 0, 0],
-            "mode": "test",
-            "param": ["2"]
-        },
-        {
-            "name": "order4",
-            "seq": [3, 0, 0],
-            "mode": "pwm",
-            "param": ["motor_1", "0"]
+            "mode": "turn",
+            "param": ["90"]
         },
         {
             "name": "order5",
-            "seq": [4, 0, 0],
+            "seq": [2, 0, 0],
             "mode": "test",
             "param": ["200"]
         }

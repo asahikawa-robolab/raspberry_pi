@@ -52,3 +52,20 @@ void pwm(jibiki::ProcOperateAuto *control,
         throw sstr.str();
     }
 }
+
+void turn(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[])
+{
+    int8_t tgt_angle = std::stoi(param[0]);    
+
+    g_chassis.m_spin = tgt_angle;
+    while(control->manage_thread_int())
+    {
+        if(abs(jibiki::rad_deg(g_imu.read()) - tgt_angle) < 5)
+        {
+            g_chassis.stop();
+            break;
+        }
+    } 
+}

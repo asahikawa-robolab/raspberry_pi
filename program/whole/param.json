@@ -16,5 +16,23 @@
         ["permissible err", 1, 1],
         ["encoder pol", 1, 1],
         ["encoder resolution", 300, 300]
-    ]
+    ],
+    "chassis_f": [
+        ["enable", 1, 1],
+        ["max pwm", 30, 30],
+        ["stop rev", 3, 3],
+        ["stop pwm", 10, 10],
+        ["kp", 20, 20],
+        ["encoder pol", 0, 0],
+        ["encoder resolution", 384, 384]       
+    ],
+    "chassis_b": [
+        ["enable", 1, 0],
+        ["max pwm", 35, 35],
+        ["stop rev", 3, 3],
+        ["stop pwm", 10, 10],
+        ["kp", 20, 20],
+        ["encoder pol", 0, 1],
+        ["encoder resolution", 384, 384]
+    ]    
 }
