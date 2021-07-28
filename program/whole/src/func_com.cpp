@@ -94,16 +94,14 @@ void com_controller(std::string path, std::string name)
 
 void com_emergency(std::string path, std::string name)
 {
-    bool emergency_sw;
     static jibiki::ParamCom com(path, 1, 1, B57600, name, false);
 
         if (com.receive())
         {
             emergency_sw = com.rx(0);
-            if(emergency_sw == 1)
-            {
-                g_chassis.stop();
-                reset_flag ^= 1;
-            }
+            if(emergency_sw.read() == 1)
+                printf("on\n");
+            else
+                printf("off\n");
         }
 }
