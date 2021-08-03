@@ -138,42 +138,122 @@ void rot(jibiki::ProcOperateAuto *control,
     }
 }
 
+/* 初期位置を0として移動する アブソリュート指令*/
 void odometry(jibiki::ProcOperateAuto *control,
           std::vector<std::string> param,
           size_t seq[])
 {
-    /* パラメータ取得 */
+    /*-----------------------------------------------
+    パラメータ取得
+    0->どの方向に移動するか(name)
+    1->どのくらい移動するか(dist)
+    2->どのくらいのスピードか(speed)
+    *鉛直方向は前、水平方向は左を正の方向とする
+    -----------------------------------------------*/
     std::string name = param[0];
-    int64_t tgt_dist = std::stoi(param[1]);
+    int32_t tgt_dist = std::stoi(param[1]);
+    int8_t tgt_speed = std::stoi(param[2]);
+
+    g_odometry_flag[0] = 0;
+    g_odometry_flag[1] = 0;
+    /* 水平方向のオドメーター */
+    if(name == "horizon")
+    {
+        if(tgt_dist > 0)
+            g_chassis.m_theta = jibiki::deg_rad(0);
+        else if(tgt_dist < 0)
+            g_chassis.m_theta = jibiki::deg_rad(180);
+        g_chassis.m_speed = tgt_speed;
+        g_dist_tgt[0] = tgt_dist;
+        while(control->manage_thread_int())
+        {
+            if(abs(g_dist_tgt[0].read() - g_dist_curr[0].read()) < 5)
+            {
+                g_chassis.stop();
+                break;
+            }
+        }
+    }
+    /* 鉛直方向のオドメーター */
+    else if(name == "vertical")
+    {
+        if(tgt_dist > 0)
+            g_chassis.m_theta = jibiki::deg_rad(90);
+        else if(tgt_dist < 0)
+            g_chassis.m_theta = jibiki::deg_rad(270);
+        g_chassis.m_speed = tgt_speed;
+        g_dist_tgt[1] = tgt_dist;
+        while(control->manage_thread_int())
+        {
+            if(abs(g_dist_tgt[1].read() - g_dist_curr[1].read()) < 5)
+            {
+                g_chassis.stop();
+                break;
+            }
+        }
+    }
+    else
+    {
+        std::stringstream sstr;
+        sstr << __PRETTY_FUNCTION__ << "name が一致しません";
+        throw sstr.str();
+    }
+}
+
+/* 現在地を0として移動する インクリメント指令*/
+void set_odometry(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[])
+{
+    /*-----------------------------------------------
+    パラメータ取得
+    0->どの方向に移動するか(name)
+    1->どのくらい移動するか(dist)
+    2->どのくらいのスピードか(speed)
+    *鉛直方向は前、水平方向は左を正の方向とする
+    -----------------------------------------------*/
+    std::string name = param[0];
+    int32_t tgt_dist = std::stoi(param[1]);
+    int8_t tgt_speed = std::stoi(param[2]);
 
     g_odometry_flag[0] = 1;
     g_odometry_flag[1] = 1;
-    /* 鉛直方向のオドメーター */
-    if(name == "odometry_1")
+    /* 水平方向のオドメーター */
+    if(name == "horizon")
     {
-        /* odometryのリセット */
+        if(tgt_dist > 0)
+            g_chassis.m_theta = jibiki::deg_rad(0);
+        else if(tgt_dist < 0)
+            g_chassis.m_theta = jibiki::deg_rad(180);
         g_dist_tgt[0] = tgt_dist;
         g_odometry_flag[0] = 0;
-        while(1)
+        g_chassis.m_speed = tgt_speed;
+        while(control->manage_thread_int())
         {
-            if(!control->manage_thread_int())
-                break;  
             if(abs(g_dist_tgt[0].read() - g_dist_curr[0].read()) < 5)
+            {
+                g_chassis.stop();
                 break;
+            }
         }
     }
-    /* 水平方向のオドメーター */
-    else if(name == "odometry_2")
+    /* 鉛直方向のオドメーター */
+    else if(name == "vertical")
     {
-        /* odometryのリセット */
+        if(tgt_dist > 0)
+            g_chassis.m_theta = jibiki::deg_rad(90);
+        else if(tgt_dist < 0)
+            g_chassis.m_theta = jibiki::deg_rad(270);
         g_dist_tgt[1] = tgt_dist;
         g_odometry_flag[1] = 0;
-        while(1)
+        g_chassis.m_speed = tgt_speed;
+        while(control->manage_thread_int())
         {
-            if(!control->manage_thread_int())
+            if(abs(g_dist_tgt[1].read() - g_dist_curr[1].read()) < 5)
+            {
+                g_chassis.stop();
                 break;
-            if(abs(g_dist_tgt[1].read() - g_dist_tgt[1].read()) < 5)
-                break;
+            }
         }
     }
     else
@@ -206,4 +286,20 @@ void limit(jibiki::ProcOperateAuto *control,
             sstr << __PRETTY_FUNCTION__ << "name が一致しません";
             throw sstr.str();
         }
+}
+void turn(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[])
+{
+    int8_t tgt_angle = std::stoi(param[0]);    
+
+    g_chassis.m_spin = tgt_angle;
+    while(control->manage_thread_int())
+    {
+        if(abs(jibiki::rad_deg(g_imu.read()) - tgt_angle) < 5)
+        {
+            g_chassis.stop();
+            break;
+        }
+    } 
 }

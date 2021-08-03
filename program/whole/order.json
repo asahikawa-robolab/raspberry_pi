@@ -5,7 +5,9 @@
         "rev",
         "rot",
         "odometry",
-        "limit"
+        "set_odometry",
+        "limit",
+        "trun"
     ],
     "test": [
         {
