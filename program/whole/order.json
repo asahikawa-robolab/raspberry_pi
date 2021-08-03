@@ -5,6 +5,7 @@
         "rev",
         "rot",
         "odometry",
+        "set_odometry",
         "limit",
         "trun"
     ],
