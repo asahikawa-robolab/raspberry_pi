@@ -18,18 +18,24 @@
         {
             "name": "order2",
             "seq": [1, 0, 0],
-            "mode": "limit",
-            "param": ["limit_1"]
+            "mode": "odometry",
+            "param": ["horizon", "-1000", "60"]
         },
         {
-            "name": "order3",
+            "name": "order1",
             "seq": [2, 0, 0],
             "mode": "test",
             "param": ["2"]
         },
         {
-            "name": "order5",
+            "name": "order2",
             "seq": [3, 0, 0],
+            "mode": "odometry",
+            "param": ["vertical", "-1000", "60"]
+        },
+        {
+            "name": "order5",
+            "seq": [4, 0, 0],
             "mode": "test",
             "param": ["200"]
         }

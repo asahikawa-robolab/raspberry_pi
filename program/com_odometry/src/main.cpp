@@ -7,7 +7,7 @@ int main(void)
     try
     {
         jibiki::ParamCom com(
-            "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LQ-if00-port0",
+            "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AH061WJN-if00-port0",
             5, 8, B57600, "odometry", true);
 
         jibiki::ShareVar<bool> reset(false);

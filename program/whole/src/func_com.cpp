@@ -91,6 +91,8 @@ void com_odmetry_control(std::string path, std::string name)
         g_dist_curr[1] = g_dist_curr[1].read() | (com.rx(5) << 8);
         g_dist_curr[1] = g_dist_curr[1].read() | (com.rx(6) << 16);
         g_dist_curr[1] = g_dist_curr[1].read() | (com.rx(7) << 24);
+
+        printf("%d, %d\n", g_dist_curr[0].read(), g_dist_curr[1].read());
     }
 }
 
