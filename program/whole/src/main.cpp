@@ -59,7 +59,7 @@ int main(void)
                                               std::ref(execute_orders),
                                               std::ref(executing_order),
                                               {test, pwm, rev, rot,
-                                               odometry, limit});
+                                               odometry, limit,turn});
     /*-----------------------------------------------
     手動制御
     -----------------------------------------------*/
