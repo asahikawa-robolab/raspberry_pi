@@ -19,20 +19,50 @@
         {
             "name": "order2",
             "seq": [1, 0, 0],
-            "mode": "limit",
-            "param": ["limit_1"]
+            "mode": "set_odometry",
+            "param": ["vertical", "1000", "35"]
         },
         {
             "name": "order3",
             "seq": [2, 0, 0],
-            "mode": "test",
-            "param": ["2"]
+            "mode": "set_odometry",
+            "param": ["horizon", "-750", "35"]
+        },
+        {
+            "name": "order2",
+            "seq": [3, 0, 0],
+            "mode": "set_odometry",
+            "param": ["vertical", "-1000", "35"]
+        },
+        {
+            "name": "order3",
+            "seq": [4, 0, 0],
+            "mode": "set_odometry",
+            "param": ["horizon", "750", "35"]
+        },
+        {
+            "name": "order2",
+            "seq": [5, 0, 0],
+            "mode": "set_odometry",
+            "param": ["vertical", "500", "35"]
+        },
+        {
+            "name": "order3",
+            "seq": [6, 0, 0],
+            "mode": "set_odometry",
+            "param": ["horizon", "-300", "35"]
         },
         {
             "name": "order5",
-            "seq": [3, 0, 0],
+            "seq": [7, 0, 0],
+            "mode": "trun",
+            "param": ["90"]
+        },
+        {
+            "name": "order5",
+            "seq": [8, 0, 0],
             "mode": "test",
-            "param": ["200"]
+            "param": ["180"]
         }
     ]
 }
