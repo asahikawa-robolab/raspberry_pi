@@ -23,5 +23,8 @@ void set_odometry(jibiki::ProcOperateAuto *control,
 void limit(jibiki::ProcOperateAuto *control,
           std::vector<std::string> param,
           size_t seq[]);
+void turn(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[]);
           
 #endif

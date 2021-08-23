@@ -6,7 +6,8 @@
         "rot",
         "odometry",
         "set_odometry",
-        "limit"
+        "limit",
+        "turn"
     ],
     "test": [
         {
