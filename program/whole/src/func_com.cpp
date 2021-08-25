@@ -99,9 +99,11 @@ void com_emergency(std::string path, std::string name)
         if (com.receive())
         {
             emergency_sw = com.rx(0);
-            if(emergency_sw.read() == 1)
-                printf("on\n");
-            else
-                printf("off\n");
+            if(emergency_sw.read() == 1);
+                //printf("on\n");
+                
+            else;
+
+                //printf("off\n");
         }
 }

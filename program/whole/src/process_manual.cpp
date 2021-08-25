@@ -9,6 +9,7 @@ void thread_manual(jibiki::ShareVar<bool> &exit_flag,
 {
     try
     {
+
         if (!jibiki::thread::enable("manual"))
             return;
 
@@ -16,6 +17,7 @@ void thread_manual(jibiki::ShareVar<bool> &exit_flag,
                                       current_method,
                                       jibiki::thread::OPERATE_MANUAL))
         {
+            
             /* 足回りに反映 */
             double speed = g_controller.speed(Controller::MODE_L, Controller::DIR_INF);
             double theta = g_controller.theta(Controller::MODE_L, Controller::DIR_INF);
