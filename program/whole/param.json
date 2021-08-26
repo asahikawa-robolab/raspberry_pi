@@ -27,7 +27,7 @@
         ["encoder resolution", 300, 300]
     ],
     "com_odometry_control": [
-        ["encoder pol", 0, 0],
+        ["encoder pol", 1, 0],
         ["encoder resolution", 384, 384]
     ],
     "chassis_f": [

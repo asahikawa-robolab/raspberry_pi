@@ -51,9 +51,11 @@ void thread_kbhit(jibiki::ShareVar<bool> &exit_flag,
             -----------------------------------------------*/
             case ';':
                 g_chassis.m_speed += 10;
+                printf("%lf\n", g_chassis.m_speed.read());
                 break;
             case '.':
                 g_chassis.m_speed -= 10;
+                printf("%lf\n", g_chassis.m_speed.read());
                 break;
             case ':':
                 g_chassis.m_theta += jibiki::deg_rad(10);

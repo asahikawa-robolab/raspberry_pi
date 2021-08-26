@@ -230,6 +230,7 @@ public:
     double raw_br(void);
     double raw_bl(void);
     double max_rpm(void) const noexcept; /* JSON ファイルから読み込んだ max_rpm を返す */
+    double rotate_kp(void) const noexcept;
 };
 /* 足回りを停止させる */
 inline void Chassis::stop(void)
@@ -287,5 +288,7 @@ inline double Chassis::raw_bl(void)
 }
 /* JSON ファイルから読み込んだ max_rpm を返す */
 inline double Chassis::max_rpm(void) const noexcept { return m_max_rpm; }
+
+inline double Chassis::rotate_kp(void) const noexcept { return m_rotate_kp; }
 
 #endif

@@ -26,5 +26,8 @@ void limit(jibiki::ProcOperateAuto *control,
 void turn(jibiki::ProcOperateAuto *control,
           std::vector<std::string> param,
           size_t seq[]);
+void jerk(jibiki::ProcOperateAuto *control,
+          std::vector<std::string> param,
+          size_t seq[]);
           
 #endif

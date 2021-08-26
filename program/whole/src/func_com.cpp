@@ -92,7 +92,7 @@ void com_odmetry_control(std::string path, std::string name)
         g_dist_curr[1] = g_dist_curr[1].read() | (com.rx(6) << 16);
         g_dist_curr[1] = g_dist_curr[1].read() | (com.rx(7) << 24);
 
-        //printf("%d\t%d\n", g_dist_curr[0].read(), g_dist_curr[1].read());
+        printf("%d\t%d\n", g_dist_curr[0].read(), g_dist_curr[1].read());
     }
 }
 
@@ -122,6 +122,16 @@ void com_chassis_f(std::string path, std::string name)
     com.tx(3) = jibiki::up(g_chassis.fl());
     com.tx(4) = jibiki::low(g_chassis.fl());
     com.send();
+
+    if(com.receive())
+    {   
+        g_chassis_rev[0] = jibiki::asbl(com.rx(0), com.rx(1));
+        g_chassis_rev[1] = jibiki::asbl(com.rx(2), com.rx(3));
+    //     std::cout << "rpm1 : " << jibiki::asbl(com.rx(0), com.rx(1)) << "\t";
+    //     std::cout << "pwm1 : " << (int8_t)com.rx(4) << "\t";
+    //     std::cout << "rpm2 : " << jibiki::asbl(com.rx(2), com.rx(3)) << "\t";
+    //     std::cout << "pwm2 : " << (int8_t)com.rx(5) << std::endl;
+    }
 }
 
 /* 足回りモータ（右後，左後） */
@@ -133,6 +143,15 @@ void com_chassis_b(std::string path, std::string name)
     com.tx(3) = jibiki::up(g_chassis.bl());
     com.tx(4) = jibiki::low(g_chassis.bl());
     com.send();
+
+    if(com.receive())
+    {   
+        g_chassis_rev[2] = jibiki::asbl(com.rx(0), com.rx(1));
+        g_chassis_rev[3] = jibiki::asbl(com.rx(2), com.rx(3));
+    // // printf("\t\t\t\t%.0lf\t%.0lf\n", g_chassis.br(), g_chassis.bl());
+    //         printf("curr %d, pwm %d\n", 
+    //          jibiki::asbl(com.rx(0), com.rx(1)),(int8_t)com.rx(4));
+    }
 }
 
 void com_switch(std::string path, std::string name)
