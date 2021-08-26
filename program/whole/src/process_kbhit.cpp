@@ -15,11 +15,13 @@ void thread_kbhit(jibiki::ShareVar<bool> &exit_flag,
 
         while (jibiki::thread::manage(exit_flag))
         {
-        if (emergency_sw.read() == 1)
-        {
-            g_chassis.stop();
-            exit_flag=true;
-        }
+            if ((emergency_sw.read() == 1) && (start_flag.read() == true))
+            {
+                g_chassis.stop();
+                g_pwm[0] = 0;
+                jibiki::usleep(1E6);
+                exit_flag=true;
+            }
             if (jibiki::kbhit())
                 pushed_key = getchar();
 
