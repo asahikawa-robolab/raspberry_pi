@@ -18,10 +18,11 @@ void thread_kbhit(jibiki::ShareVar<bool> &exit_flag,
             if ((emergency_sw.read() == 1) && (start_flag.read() == true))
             {
                 g_chassis.stop();
-                g_pwm[0] = 0;
-                jibiki::usleep(1E6);
-                exit_flag=true;
+                current_method = jibiki::thread::OPERATE_MANUAL;
             }
+            if ((emergency_sw.read() == 0) && (start_flag.read() == true))
+                current_method = jibiki::thread::OPERATE_AUTO;
+                
             if (jibiki::kbhit())
                 pushed_key = getchar();
 
