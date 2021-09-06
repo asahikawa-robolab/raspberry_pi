@@ -1,7 +1,14 @@
 {
     "mode_list": [
-        "test",
-        "pwm"
+        "test", 
+        "pwm", 
+        "rev", 
+        "rot",
+        "odometry", 
+        "set_odometry", 
+        "limit",
+        "turn", 
+        "jerk"
     ],
     "test": [
         {
@@ -11,28 +18,16 @@
             "param": ["2"]
         },
         {
-            "name": "order2",
+            "name": "order1",
             "seq": [1, 0, 0],
-            "mode": "pwm",
-            "param": ["motor_1", "10"]
-        },
-        {
-            "name": "order3",
-            "seq": [2, 0, 0],
-            "mode": "test",
-            "param": ["2"]
-        },
-        {
-            "name": "order4",
-            "seq": [3, 0, 0],
-            "mode": "pwm",
-            "param": ["motor_1", "0"]
+            "mode": "jerk",
+            "param": ["100", "100" ,"5"]
         },
         {
             "name": "order5",
-            "seq": [4, 0, 0],
+            "seq": [2, 0, 0],
             "mode": "test",
-            "param": ["200"]
+            "param": ["180"]
         }
     ]
 }
