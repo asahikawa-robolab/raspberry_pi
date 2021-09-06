@@ -190,3 +190,19 @@ void com_controller(std::string path, std::string name)
     if (com.receive())
         g_controller.set(com);
 }
+
+void com_emergency(std::string path, std::string name)
+{
+    static jibiki::ParamCom com(path, 1, 1, B57600, name, false);
+
+        if (com.receive())
+        {
+            emergency_sw = com.rx(0);
+            if(emergency_sw.read() == 1);
+                //printf("on\n");
+                
+            else;
+
+                //printf("off\n");
+        }
+}

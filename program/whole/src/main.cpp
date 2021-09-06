@@ -48,7 +48,8 @@ int main(void)
                               com_chassis_b,
                               com_switch,
                               com_imu,
-                              com_controller});
+                              com_controller,
+                              com_emergency});
     /*-----------------------------------------------
     自動制御
     -----------------------------------------------*/

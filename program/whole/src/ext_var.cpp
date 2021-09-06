@@ -14,4 +14,5 @@ SwitchData g_switch_data;                   /* スイッチスレーブのデー
 Imu g_imu;                                  /* IMU のデータ */
 Controller g_controller;                    /* コントローラのデータ */
 Chassis g_chassis(g_imu);                   /* 足回り */
+jibiki::ShareVar<bool> emergency_sw(0);/* 非常停止swの状態 0:off 1:on */
 jibiki::ShareVar<int8_t>g_chassis_rev[4];   /* 現在の回転数 ＊jerkで使用 0:fr,1:fl,2:br,3:bl*/
