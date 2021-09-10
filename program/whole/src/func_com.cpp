@@ -92,7 +92,8 @@ void com_odmetry_control(std::string path, std::string name)
         g_dist_curr[1] = g_dist_curr[1].read() | (com.rx(6) << 16);
         g_dist_curr[1] = g_dist_curr[1].read() | (com.rx(7) << 24);
 
-        printf("%d\t%d\n", g_dist_curr[0].read(), g_dist_curr[1].read());
+        // printf("%d\t%d\n%d\t%d\n", g_dist_tgt[0].read(), g_dist_tgt[1].read(),
+        //     g_dist_curr[0].read(), g_dist_curr[1].read());
     }
 }
 
@@ -198,10 +199,10 @@ void com_emergency(std::string path, std::string name)
         if (com.receive())
         {
             emergency_sw = com.rx(0);
-            if(emergency_sw.read() == 1);
+            // if(emergency_sw.read() == 1)
                 //printf("on\n");
                 
-            else;
+            // else
 
                 //printf("off\n");
         }

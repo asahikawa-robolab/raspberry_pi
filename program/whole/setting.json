@@ -10,14 +10,14 @@
         ["com_pwm_control",        false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI057A81-if00-port0"],
         ["com_rev_control",        false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579ZQ-if00-port0"],
         ["com_rot_control",        false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI057A81-if00-port0"],
-        ["com_odometry_control",   true,       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AH061WJN-if00-port0"],
+        ["com_odometry_control",   true,       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579ZU-if00-port0"],
         ["com_limit",              false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579LP-if00-port0"],
-        ["chassis_f",              true,       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A505RXYM-if00-port0"],
+        ["chassis_f",              true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI057BZK-if00-port0"],
         ["chassis_b",              true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579ZQ-if00-port0"],
         ["switch",                 false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A906V9YT-if00-port0"],
-        ["imu",                    false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579AL-if00-port0"],
+        ["imu",                    true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A505RXCU-if00-port0"],
         ["controller",             false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AH016V4V-if00-port0"],
-        ["com_emergency",          true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A505RXYM-if00-port0"]
+        ["com_emergency",          false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A505RXYM-if00-port0"]
 
     ],
     "chassis": {

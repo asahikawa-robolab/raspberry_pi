@@ -14,14 +14,14 @@
         {
             "name": "order1",
             "seq": [0, 0, 0],
-            "mode": "test",
-            "param": ["2"]
+            "mode": "set_odometry",
+            "param": ["-100", "-100"]
         },
         {
             "name": "order1",
             "seq": [1, 0, 0],
-            "mode": "jerk",
-            "param": ["100", "100" ,"5"]
+            "mode": "odometry",
+            "param": ["0", "100"]
         },
         {
             "name": "order5",

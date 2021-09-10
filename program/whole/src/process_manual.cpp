@@ -42,21 +42,21 @@ void thread_manual(jibiki::ShareVar<bool> &exit_flag,
                 g_rev_tgt[0] = 30;
 
             //ピッチング
-            if (g_controller.tact_lu())
-                g_pitting_rev = 0; //ここの値を変える
-            if (g_controller.tact_mu())
-                g_pitting_rev = 0;
-            if (g_controller.tact_ru())
-                g_pitting_rev = 0;
-            if (g_controller.tact_ld())
-                g_pitting_rev = 0;
-            if (g_controller.tact_md())
-                g_pitting_rev = 0;
-            if (g_controller.tact_rd())
-                g_pitting_rev = 0;
+            // if (g_controller.tact_lu())
+            //     g_pitting_rev = 0; //ここの値を変える
+            // if (g_controller.tact_mu())
+            //     g_pitting_rev = 0;
+            // if (g_controller.tact_ru())
+            //     g_pitting_rev = 0;
+            // if (g_controller.tact_ld())
+            //     g_pitting_rev = 0;
+            // if (g_controller.tact_md())
+            //     g_pitting_rev = 0;
+            // if (g_controller.tact_rd())
+            //     g_pitting_rev = 0;
 
-            if (g_controller.r_cross_r())
-                g_rev_tgt[1] = g_pitting_rev;
+            // if (g_controller.r_cross_r())
+            //     g_rev_tgt[1] = g_pitting_rev;
             //printf("aaaa");
         }
     }
