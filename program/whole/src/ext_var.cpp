@@ -14,3 +14,4 @@ SwitchData g_switch_data;                   /* スイッチスレーブのデー
 Imu g_imu;                                  /* IMU のデータ */
 Controller g_controller;                    /* コントローラのデータ */
 Chassis g_chassis(g_imu);                   /* 足回り */
+LRF g_LRF;

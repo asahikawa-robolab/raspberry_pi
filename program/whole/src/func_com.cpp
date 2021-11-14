@@ -169,3 +169,9 @@ void com_controller(std::string path, std::string name)
     if (com.receive())
         g_controller.set(com);
 }
+
+void com_lrf(std::string path, std::string name)
+{
+    g_LRF.get_data(cv::Rect(-3000, -3000, 6000, 6000));
+
+}

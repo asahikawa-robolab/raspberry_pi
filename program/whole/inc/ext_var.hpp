@@ -16,5 +16,6 @@ extern SwitchData g_switch_data;                   /* スイッチスレーブ�
 extern Imu g_imu;                                  /* IMU のデータ */
 extern Controller g_controller;                    /* コントローラのデータ */
 extern Chassis g_chassis;                          /* 足回り */
+extern LRF g_LRF;
 
 #endif
