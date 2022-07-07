@@ -185,11 +185,17 @@ void com_imu(std::string path, std::string name)
 
 void com_controller(std::string path, std::string name)
 {
-    static jibiki::ParamCom com(path, 0, 8, B57600, name, false);
+	static jibiki::ParamCom com(path, 4, 8, B57600, name, false);
 
-    /* 受信データを読み込ませる */
-    if (com.receive())
-        g_controller.set(com);
+	g_controller.lcd_sprintf1("123ﾃｽﾄ");
+	g_controller.lcd_sprintf2("456ﾃｽﾄ");
+
+	/* データを送信する */
+	g_controller.send(com);
+
+	/* 受信データを読み込ませる */
+	if (com.receive())
+		g_controller.set(com);
 }
 
 void com_emergency(std::string path, std::string name)

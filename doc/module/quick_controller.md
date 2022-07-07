@@ -41,11 +41,15 @@ Controller controller;
 
 # 4. データの準備
 `Controller::set()` でコントローラから受信したデータをセットする．
+`Controller::send()` でセットされた文字データを送信する．
 
 # 5. データの読み出し
 `Controller::l_cross_l()`, `Controller::l_switch_d()`, `Controller::l_analog_stick_h()` 等のメンバ関数でデータを読み出す．
 
-# 6. アナログスティックの計算
+# 6. 文字列のセット
+`Controller::lcd_sprintf1()`,`Controller::lcd_sprintf2()`でLCDに表示する文字列をセットする
+
+# 7. アナログスティックの計算
 * `Controller::speed()` と `Controller::theta()` でそれぞれアナログスティックの倒し具合と倒している向きを取得できる．
 * 両方とも引数は `(Mode mode, DirNum dir_num)` 
     * `Mode` には左スティックか右スティックかを指定する．

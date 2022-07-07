@@ -59,7 +59,9 @@ namespace jibiki
     void destroy(void) const noexcept; /* ポートを閉じる */
     bool check_write(void);
     bool serial_one_byte_read(uint8_t *data) const noexcept;
+  public:
     void serial_write(std::vector<uint8_t> data);
+  private:
     std::vector<uint8_t> protocol_tx(std::vector<uint8_t> in) const;
     std::vector<uint8_t> protocol_rx(std::vector<uint8_t> in) const;
 
