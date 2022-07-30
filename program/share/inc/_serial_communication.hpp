@@ -55,12 +55,14 @@ namespace jibiki
     double m_rx_freq;         /* 受信周波数 */
 
   private:
-    void setup(void);
+    void setup(bool is_constructor);
     void destroy(void) const noexcept; /* ポートを閉じる */
     bool check_write(void);
     bool serial_one_byte_read(uint8_t *data) const noexcept;
+    void cheak_conection(void); /* 接続をチェックする */
   public:
     void serial_write(std::vector<uint8_t> data);
+
   private:
     std::vector<uint8_t> protocol_tx(std::vector<uint8_t> in) const;
     std::vector<uint8_t> protocol_rx(std::vector<uint8_t> in) const;
