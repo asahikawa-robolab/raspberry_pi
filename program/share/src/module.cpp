@@ -163,15 +163,37 @@ void Controller::send(jibiki::ParamCom& com)
 	double passed_time = jibiki::calc_sec(m_time.read(), jibiki::get_time());
 	if (passed_time < m_calc_period_ms * 1E-3)
 		return;
-	uint8_t Transmit_line_data[5] = { '\0', 0x11, 0x00, 0x12, 0x00 };
-	uint8_t Transmit_line_data2[4] = { 0x11, 0x01, 0x12, 0x00 };
 
-	std::vector<uint8_t> data(std::begin(Transmit_line_data), std::end(Transmit_line_data));
-	for (int i = 0; i < 20 && transmit_chara[i].read() != '\0'; i++) data.push_back(transmit_chara[i].read());
-	for (int i = 0; i < 4; i++) data.push_back(Transmit_line_data2[i]);
-	for (int i = 0; i < 20 && transmit_chara2[i].read() != '\0'; i++) data.push_back(transmit_chara2[i].read());
+	if (m_is_clear.read()) {
+		uint8_t Transmit_line_data[5] = { '\0', 0x11, 0x00, 0x12, 0x00 };
+		uint8_t Transmit_line_data2[4] = { 0x11, 0x01, 0x12, 0x00 };
 
-	com.serial_write(data);
+		std::vector<uint8_t> data(std::begin(Transmit_line_data), std::end(Transmit_line_data));
+		for (int i = 0; i < 20 && transmit_chara[i].read() != '\0'; i++) data.push_back(transmit_chara[i].read());
+		for (int i = 0; i < 4; i++) data.push_back(Transmit_line_data2[i]);
+		for (int i = 0; i < 20 && transmit_chara2[i].read() != '\0'; i++) data.push_back(transmit_chara2[i].read());
+
+		com.serial_write(data);
+	}
+	else
+	{
+		uint8_t Transmit_line_data[4] = { 0x11, 0x00, 0x12, 0x00 };
+		uint8_t Transmit_line_data2[4] = { 0x11, 0x01, 0x12, 0x00 };
+
+		std::vector<uint8_t> data(std::begin(Transmit_line_data), std::end(Transmit_line_data));
+
+		int i = 0;
+		for (i = 0; i < 20 && transmit_chara[i].read() != '\0'; i++) data.push_back(transmit_chara[i].read());
+		for (; i < 20; i++)data.push_back(' ');
+
+		for (i = 0; i < 4; i++) data.push_back(Transmit_line_data2[i]);
+
+		for (i = 0; i < 20 && transmit_chara2[i].read() != '\0'; i++) data.push_back(transmit_chara2[i].read());
+		for (; i < 20; i++)data.push_back(' ');
+
+		com.serial_write(data);
+	}
+	m_is_clear = false;
 }
 /*LCDの1行目のデータをセットする*/
 void Controller::lcd_sprintf1(const char *format, ...) 
