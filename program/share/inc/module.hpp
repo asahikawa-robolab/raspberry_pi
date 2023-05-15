@@ -185,7 +185,7 @@ inline double Controller::theta(Mode mode, DirNum dir_num)
 
 /*-----------------------------------------------
  *
- * Chassis（動作未確認）
+ * Chassis
  *
 -----------------------------------------------*/
 class Chassis
@@ -198,7 +198,7 @@ public:
 		TURN_SHORTEST, /* 最短方向 */
 	} TurnMode;
 
-private: /* コンストラクタでしか変更操作が行われないため排他制御不要 */
+protected: /* コンストラクタでしか変更操作が行われないため排他制御不要 */
 	size_t m_channel_fr, m_channel_fl, m_channel_br, m_channel_bl;
 	bool m_inverse_fr, m_inverse_fl, m_inverse_br, m_inverse_bl;
 	double m_max_rpm;
@@ -207,16 +207,18 @@ private: /* コンストラクタでしか変更操作が行われないため�
 	std::string m_json_path;
 	size_t m_calc_period_ms;
 
-private:
+protected:
 	jibiki::ShareVar<double> m_fr, m_fl, m_br, m_bl; /* 回転数目標値 */
 	jibiki::ShareVar<double> m_raw_rpm[4];           /* 回転数目標値（入れ替え，反転なし） */
 	jibiki::ShareVar<jibiki::time_point> m_time;     /* calc 用 */
 
-private:
-	void load_json(void);
-	void calc(void);
+protected:
+	virtual void load_json(void);
 	double calc_rotate(void);
 	double calc_angle_diff(double subed, double sub, TurnMode turn_mode);
+public:
+	virtual void calc(void);
+
 
 public:
 	jibiki::ShareVar<double> m_speed;
@@ -226,6 +228,7 @@ public:
 
 public:
 	Chassis(Imu& imu, std::string json_path = "setting.json");
+	Chassis();
 	void stop(void);
 	double fr(void);
 	double fl(void);
@@ -297,4 +300,75 @@ inline double Chassis::max_rpm(void) const noexcept { return m_max_rpm; }
 
 inline double Chassis::rotate_kp(void) const noexcept { return m_rotate_kp; }
 
+/*-----------------------------------------------
+ *
+ * SteerChassis（動作未確認）
+ *
+-----------------------------------------------*/
+class SteerChassis : public Chassis
+{
+public:
+	SteerChassis(Imu& imu, std::string json_path = "setting.json");
+	virtual void calc(void);
+	double fr_ang(void);
+	double fl_ang(void);
+	double br_ang(void);
+	double bl_ang(void);
+	double raw_fr_ang(void);
+	double raw_fl_ang(void);
+	double raw_br_ang(void);
+	double raw_bl_ang(void);
+private:
+	jibiki::ShareVar<double> m_fr_ang, m_fl_ang, m_br_ang, m_bl_ang; /* 角度目標値 */
+	jibiki::ShareVar<double> m_raw_ang[4];           /* 角度目標値（入れ替え，反転なし） */
+	virtual void load_json(void);
+};
+/* 回転数目標値を返す（fr_ang） */
+inline double SteerChassis::fr_ang(void)
+{
+	calc();
+	return m_fr_ang.read();
+}
+/* 回転数目標値を返す（fl_ang） */
+inline double SteerChassis::fl_ang(void)
+{
+	calc();
+	return m_fl_ang.read();
+}
+/* 回転数目標値を返す（br_ang） */
+inline double SteerChassis::br_ang(void)
+{
+	calc();
+	return m_br_ang.read();
+}
+/* 回転数目標値を返す（bl_ang） */
+inline double SteerChassis::bl_ang(void)
+{
+	calc();
+	return m_bl_ang.read();
+}
+/* 生の回転数目標値を返す（fr_ang） */
+inline double SteerChassis::raw_fr_ang(void)
+{
+	calc();
+	return m_raw_rpm[0].read();
+}
+/* 生の回転数目標値を返す（fl_ang） */
+inline double SteerChassis::raw_fl_ang(void)
+{
+	calc();
+	return m_raw_rpm[1].read();
+}
+/* 生の回転数目標値を返す（br_ang） */
+inline double SteerChassis::raw_br_ang(void)
+{
+	calc();
+	return m_raw_rpm[2].read();
+}
+/* 生の回転数目標値を返す（bl_ang） */
+inline double SteerChassis::raw_bl_ang(void)
+{
+	calc();
+	return m_raw_rpm[3].read();
+}
 #endif

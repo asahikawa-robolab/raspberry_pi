@@ -16,7 +16,7 @@
         ["chassis_b",              false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579ZQ-if00-port0"],
         ["switch",                 false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A906V9YT-if00-port0"],
         ["imu",                    false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A505RXCU-if00-port0"],
-        ["controller",             true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI055YMN-if00-port0"],
+        ["controller",             true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI05600K-if00-port0"],
         ["com_emergency",          false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A505RXYM-if00-port0"]
 
     ],
@@ -40,7 +40,27 @@
             "kp": 60
         }
     },
+    "SteerChassis": {
+        "max_rpm": 300,
+        "channel": {
+            "fr" : 0,
+            "fl" : 1,
+            "br" : 2,
+            "bl" : 3
+        },
+        "inverse": {
+            "fr": false,
+            "fl": false,
+            "br": false,
+            "bl": false            
+        },
+        "rotate": {
+            "min": 20,
+            "max": 50,
+            "kp": 60
+        }
+    },
     "system": {
-        "calc_period_ms": 50
+        "calc_period_ms": 30
     }
 }

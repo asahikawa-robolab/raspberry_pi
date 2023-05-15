@@ -159,14 +159,14 @@ void draw_robot(cv::Mat img, Chassis &chassis, Imu &imu, size_t margin, double s
     cv::Point wheel_br = corner_br + cv::Point(-wheel_offset, -wheel_offset);
     cv::Point wheel_bl = corner_bl + cv::Point(wheel_offset, -wheel_offset);
     /* 車輪の速度を表す矢印 */
-    cv::Point wheel_fr_from = wheel_fr + cv::Point(cv::Point2f(cos(M_PI_4), sin(M_PI_4)) * chassis.raw_fr() * wheel_base_size);
-    cv::Point wheel_fr_to = wheel_fr + cv::Point(cv::Point2f(-cos(M_PI_4), -sin(M_PI_4)) * chassis.raw_fr() * wheel_base_size);
-    cv::Point wheel_fl_from = wheel_fl + cv::Point(cv::Point2f(-cos(M_PI_4), sin(M_PI_4)) * chassis.raw_fl() * wheel_base_size);
-    cv::Point wheel_fl_to = wheel_fl + cv::Point(cv::Point2f(cos(M_PI_4), -sin(M_PI_4)) * chassis.raw_fl() * wheel_base_size);
-    cv::Point wheel_br_from = wheel_br + cv::Point(cv::Point2f(-cos(M_PI_4), sin(M_PI_4)) * chassis.raw_br() * wheel_base_size);
-    cv::Point wheel_br_to = wheel_br + cv::Point(cv::Point2f(cos(M_PI_4), -sin(M_PI_4)) * chassis.raw_br() * wheel_base_size);
-    cv::Point wheel_bl_from = wheel_bl + cv::Point(cv::Point2f(cos(M_PI_4), sin(M_PI_4)) * chassis.raw_bl() * wheel_base_size);
-    cv::Point wheel_bl_to = wheel_bl + cv::Point(cv::Point2f(-cos(M_PI_4), -sin(M_PI_4)) * chassis.raw_bl() * wheel_base_size);
+    cv::Point wheel_fr_from = wheel_fr + cv::Point(cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_fr() * wheel_base_size/-2.0);
+    cv::Point wheel_fr_to = wheel_fr + cv::Point  (cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_fr() * wheel_base_size/2.0);
+    cv::Point wheel_fl_from = wheel_fl + cv::Point(cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_fr() * wheel_base_size/-2.0);
+    cv::Point wheel_fl_to = wheel_fl + cv::Point  (cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read()))* chassis.raw_fl() *  wheel_base_size/2.0);
+    cv::Point wheel_br_from = wheel_br + cv::Point(cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_fr() * wheel_base_size/-2.0);
+    cv::Point wheel_br_to = wheel_br + cv::Point  (cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read()))* chassis.raw_br() *  wheel_base_size/2.0);
+    cv::Point wheel_bl_from = wheel_bl + cv::Point(cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_fr() * wheel_base_size/-2.0);
+    cv::Point wheel_bl_to = wheel_bl + cv::Point  (cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_bl() * wheel_base_size/2.0);
     /*-----------------------------------------------
     座標変換
     -----------------------------------------------*/
@@ -238,11 +238,11 @@ void thread_display(jibiki::ShareVar<bool> &exit_flag,
 
             /* 描画データの用意 */
             draw_current_method(img, current_method, 1);
-            draw_chassis(img, g_chassis, 3);
+            draw_chassis(img, g_steer, 3);
             draw_controller(img, g_controller, 5);
             draw_executing_order(img, executing_order, 7);
             draw_analog_stick(img, g_controller, 40, 0.5);
-            draw_robot(img, g_chassis, g_imu, 40, 0.5);
+            draw_robot(img, g_steer, g_imu, 40, 0.5);
 
             /* 描画 */
             cv::imshow("window", img);                  /* ウィンドウに描画 */

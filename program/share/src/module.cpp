@@ -350,6 +350,7 @@ Chassis::Chassis(Imu &imu, std::string json_path)
 	  m_spin(0),
 	  m_turn_mode(TURN_SHORTEST)
 {
+	printf("bace!!!");
 	try
 	{
 		/* JSON ファイルから設定を読み込む */
@@ -612,4 +613,192 @@ double Chassis::calc_angle_diff(double subed, double sub, TurnMode turn_mode)
 		break;
 	}
 	return angle_diff;
+}
+Chassis ::Chassis() {}
+/*-----------------------------------------------
+ *
+ * SteerChassis（動作未確認）
+ *
+-----------------------------------------------*/
+SteerChassis::SteerChassis(Imu &imu, std::string json_path)
+//: Chassis(imu, json_path)
+{
+	printf("Hello SterChassis!\n");
+	m_speed = 0;
+	m_imu = &imu;
+	m_json_path = json_path;
+	m_time = jibiki::get_time(),
+	m_theta = jibiki::deg_rad(90),
+	m_spin = 0,
+	m_turn_mode = TURN_SHORTEST;
+	load_json();
+}
+void SteerChassis::calc()
+{
+	double passed_time = jibiki::calc_sec(m_time.read(), jibiki::get_time());
+	if (passed_time < 50E-3)
+		return;
+	else
+		m_time = jibiki::get_time();
+
+	/*-----------------------------------------------
+	エラーチェック
+	-----------------------------------------------*/
+	if (!jibiki::between2(0.0, m_speed.read(), m_max_rpm))
+	{
+		std::stringstream sstr;
+		sstr << "Chassis::m_speed の値 (" << m_speed.read() << ") が不適切です．\n "
+			 << m_json_path << " の chassis/max_rpm の値 (" << max_rpm()
+			 << ") を超えないようにしてください．";
+		jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+		throw std::runtime_error(""); /* エラー発生 */
+	}
+
+	double rotate = calc_rotate();		 /* 回転量を計算 */
+	double current_spin = m_imu->read(); /* 現在の回転角を取得 */
+	if (m_speed.read() < 1)
+	{
+		m_bl_ang = 0;
+		m_br_ang = 0;
+		m_fl_ang = 0;
+		m_fr_ang = 0;
+	}
+	else
+	{
+		m_bl_ang = m_theta.read();
+		m_br_ang = m_theta.read();
+		m_fl_ang = m_theta.read();
+		m_fr_ang = m_theta.read();
+	}
+		// printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	
+	
+	m_raw_rpm[0] = m_speed.read();
+	m_raw_rpm[1] = m_speed.read();
+	m_raw_rpm[2] = m_speed.read();
+	m_raw_rpm[3] = m_speed.read();
+
+	m_fr = m_raw_rpm[m_channel_fr].read();
+	m_fl = m_raw_rpm[m_channel_fl].read();
+	m_br = m_raw_rpm[m_channel_br].read();
+	m_bl = m_raw_rpm[m_channel_bl].read();
+
+
+
+	if (m_inverse_fr)
+		m_fr *= -1;
+	if (m_inverse_fl)
+		m_fl *= -1;
+	if (m_inverse_br)
+		m_br *= -1;
+	if (m_inverse_bl)
+		m_bl *= -1;
+}
+void SteerChassis::load_json()
+{
+	using picojson::object;
+	double c1, c2, c3, c4; /* channel */
+
+	/*-----------------------------------------------
+	ファイルを読み込む
+	-----------------------------------------------*/
+	try
+	{
+		/* chassis */
+		picojson::value json_value = jibiki::load_json_file(m_json_path);
+		object &obj = json_value.get<object>()["SteerChassis"].get<object>();
+		/* max_rpm */
+		m_max_rpm = obj["max_rpm"].get<double>();
+		/* channel */
+		c1 = obj["channel"].get<object>()["fr"].get<double>();
+		c2 = obj["channel"].get<object>()["fl"].get<double>();
+		c3 = obj["channel"].get<object>()["br"].get<double>();
+		c4 = obj["channel"].get<object>()["bl"].get<double>();
+		m_channel_fr = (size_t)c1;
+		m_channel_fl = (size_t)c2;
+		m_channel_br = (size_t)c3;
+		m_channel_bl = (size_t)c4;
+		/* inverse */
+		m_inverse_fr = obj["inverse"].get<object>()["fr"].get<bool>();
+		m_inverse_fl = obj["inverse"].get<object>()["fl"].get<bool>();
+		m_inverse_br = obj["inverse"].get<object>()["br"].get<bool>();
+		m_inverse_bl = obj["inverse"].get<object>()["bl"].get<bool>();
+		/* rotate */
+		m_rotate_min = obj["rotate"].get<object>()["min"].get<double>();
+		m_rotate_max = obj["rotate"].get<object>()["max"].get<double>();
+		m_rotate_kp = obj["rotate"].get<object>()["kp"].get<double>();
+	}
+	catch (const std::exception &e)
+	{
+		std::stringstream sstr;
+		sstr << m_json_path << " 中の chassis の書式が不適切です．";
+		jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+		throw std::runtime_error(""); /* エラー発生 */
+	}
+	/*-----------------------------------------------
+	エラーチェック
+	-----------------------------------------------*/
+	try
+	{
+		bool v_fr = c1 == 0 || c1 == 1 || c1 == 2 || c1 == 3;
+		bool v_fl = c2 == 0 || c2 == 1 || c2 == 2 || c2 == 3;
+		bool v_br = c3 == 0 || c3 == 1 || c3 == 2 || c3 == 3;
+		bool v_bl = c4 == 0 || c4 == 1 || c4 == 2 || c4 == 3;
+		if ((v_fr & v_fl & v_br & v_bl) == false)
+			throw std::string("chassis/channel の値が不適切です．\n"
+							  " 0, 1, 2, 3 のいずれかを指定してください．");
+		bool eq1 = c1 == c2 || c1 == c3 || c1 == c4;
+		bool eq2 = c2 == c3 || c2 == c4;
+		bool eq3 = c3 == c4;
+		if (eq1 | eq2 | eq3)
+			throw std::string("chassis/channel の値が不適切です．\n"
+							  "重複しない相異なる値を指定してください．"); /* エラー発生 */
+		if (m_max_rpm <= 0)
+			throw std::string("chassis/max_rpm の値が不適切です．\n"
+							  "正の値を指定してください．"); /* エラー発生 */
+		if (m_rotate_min <= 0)
+			throw std::string("chassis/rotate/min の値が不適切です．\n"
+							  "正の値を指定してください．"); /* エラー発生 */
+		if (m_rotate_max <= 0)
+			throw std::string("chassis/rotate/max の値が不適切です．\n"
+							  "正の値を指定してください．"); /* エラー発生 */
+		if (m_rotate_kp <= 0)
+			throw std::string("chassis/rotate/kp の値が不適切です．\n"
+							  "正の値を指定してください．"); /* エラー発生 */
+	}
+	catch (std::string err)
+	{
+		std::stringstream sstr;
+		sstr << m_json_path << " 中の " << err;
+		jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+		throw std::runtime_error(""); /* エラー発生 */
+	}
+	/*-----------------------------------------------
+	system_calc_period_ms
+	-----------------------------------------------*/
+	try
+	{
+		picojson::value json_val = jibiki::load_json_file(m_json_path);
+		m_calc_period_ms = (size_t)json_val.get<object>()["system"]
+							   .get<object>()["calc_period_ms"]
+							   .get<double>();
+	}
+	catch (const std::exception &e)
+	{
+		std::stringstream sstr;
+		sstr << m_json_path << " 中の system の書式が不適切です．";
+		jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+		throw std::runtime_error(""); /* エラー発生 */
+	}
+	/*-----------------------------------------------
+	エラーチェック
+	-----------------------------------------------*/
+	if (m_calc_period_ms <= 0)
+	{
+		std::stringstream sstr;
+		sstr << m_json_path << " 中の system/calc_period_ms の値が不適切です．\n"
+							   "正の値を指定してください．";
+		jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+		throw std::runtime_error(""); /* エラー発生 */
+	}
 }

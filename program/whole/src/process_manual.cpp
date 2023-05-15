@@ -17,13 +17,18 @@ void thread_manual(jibiki::ShareVar<bool> &exit_flag,
                                       current_method,
                                       jibiki::thread::OPERATE_MANUAL))
         {
-            
+
             /* 足回りに反映 */
             double speed = g_controller.speed(Controller::MODE_L, Controller::DIR_INF);
             double theta = g_controller.theta(Controller::MODE_L, Controller::DIR_INF);
-            g_chassis.m_speed = speed * 1E-2 * g_chassis.max_rpm();
-            g_chassis.m_theta = theta;
-             /* 旋回 */
+            // g_chassis.m_speed = speed * 1E-2 * g_chassis.max_rpm();
+            // g_chassis.m_theta = theta;
+
+            g_steer.m_speed = speed * 1E-2 * g_chassis.max_rpm();
+            g_steer.m_theta = theta;
+            // g_steer.calc();
+            printf("%lf,%lf,%lf,%lf\n", g_steer.bl_ang(), g_steer.br_ang(), g_steer.fl_ang(), g_steer.fr_ang());
+            /* 旋回 */
             if (g_controller.l_cross_r())
                 g_chassis.m_spin = jibiki::deg_rad(0);
             if (g_controller.l_cross_u())
@@ -33,7 +38,7 @@ void thread_manual(jibiki::ShareVar<bool> &exit_flag,
             if (g_controller.l_cross_d())
                 g_chassis.m_spin = jibiki::deg_rad(270);
 
-            //昇降
+            // 昇降
             if (g_controller.l_switch_u())
                 g_rev_tgt[0] = 30;
             if (g_controller.l_switch_m())
@@ -41,23 +46,23 @@ void thread_manual(jibiki::ShareVar<bool> &exit_flag,
             if (g_controller.l_switch_d())
                 g_rev_tgt[0] = 30;
 
-            //ピッチング
-            // if (g_controller.tact_lu())
-            //     g_pitting_rev = 0; //ここの値を変える
-            // if (g_controller.tact_mu())
-            //     g_pitting_rev = 0;
-            // if (g_controller.tact_ru())
-            //     g_pitting_rev = 0;
-            // if (g_controller.tact_ld())
-            //     g_pitting_rev = 0;
-            // if (g_controller.tact_md())
-            //     g_pitting_rev = 0;
-            // if (g_controller.tact_rd())
-            //     g_pitting_rev = 0;
+            // ピッチング
+            //  if (g_controller.tact_lu())
+            //      g_pitting_rev = 0; //ここの値を変える
+            //  if (g_controller.tact_mu())
+            //      g_pitting_rev = 0;
+            //  if (g_controller.tact_ru())
+            //      g_pitting_rev = 0;
+            //  if (g_controller.tact_ld())
+            //      g_pitting_rev = 0;
+            //  if (g_controller.tact_md())
+            //      g_pitting_rev = 0;
+            //  if (g_controller.tact_rd())
+            //      g_pitting_rev = 0;
 
             // if (g_controller.r_cross_r())
             //     g_rev_tgt[1] = g_pitting_rev;
-            //printf("aaaa");
+            // printf("aaaa");
         }
     }
     catch (const std::exception &e)
