@@ -350,7 +350,6 @@ Chassis::Chassis(Imu &imu, std::string json_path)
 	  m_spin(0),
 	  m_turn_mode(TURN_SHORTEST)
 {
-	printf("bace!!!");
 	try
 	{
 		/* JSON ファイルから設定を読み込む */
@@ -623,7 +622,6 @@ Chassis ::Chassis() {}
 SteerChassis::SteerChassis(Imu &imu, std::string json_path)
 //: Chassis(imu, json_path)
 {
-	printf("Hello SterChassis!\n");
 	m_speed = 0;
 	m_imu = &imu;
 	m_json_path = json_path;
@@ -656,35 +654,54 @@ void SteerChassis::calc()
 
 	double rotate = calc_rotate();		 /* 回転量を計算 */
 	double current_spin = m_imu->read(); /* 現在の回転角を取得 */
-	if (m_speed.read() < 1)
-	{
-		m_bl_ang = 0;
-		m_br_ang = 0;
-		m_fl_ang = 0;
-		m_fr_ang = 0;
-	}
-	else
-	{
-		m_bl_ang = m_theta.read();
-		m_br_ang = m_theta.read();
-		m_fl_ang = m_theta.read();
-		m_fr_ang = m_theta.read();
-	}
-		// printf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-	
-	
+
+	/*目標回転数*/
 	m_raw_rpm[0] = m_speed.read();
 	m_raw_rpm[1] = m_speed.read();
 	m_raw_rpm[2] = m_speed.read();
 	m_raw_rpm[3] = m_speed.read();
 
+
+	if (m_speed.read() == 0)
+	{
+		/*その場回転*/
+		if (rotate != 0)
+		{
+			m_raw_ang[0] = M_PI_4*3;
+			m_raw_ang[1] = M_PI_4 *5;
+			m_raw_ang[2] = M_PI_4 ;
+			m_raw_ang[3] = M_PI_4 *7;
+			m_raw_rpm[0] = rotate;
+			m_raw_rpm[1] = rotate;
+			m_raw_rpm[2] = rotate;
+			m_raw_rpm[3] = rotate;
+		}
+	}
+	else
+	{
+		/*平行移動*/
+		m_raw_ang[0] = m_theta.read()-current_spin;
+		m_raw_ang[1] = m_theta.read()-current_spin;
+		m_raw_ang[2] = m_theta.read()-current_spin;
+		m_raw_ang[3] = m_theta.read()-current_spin;
+	}
+
+	/*-----------------------------------------------
+	m_channel_x に従って値を入れ替える
+	-----------------------------------------------*/
 	m_fr = m_raw_rpm[m_channel_fr].read();
 	m_fl = m_raw_rpm[m_channel_fl].read();
 	m_br = m_raw_rpm[m_channel_br].read();
 	m_bl = m_raw_rpm[m_channel_bl].read();
 
+	m_fr_ang = m_raw_ang[m_channel_fr].read();
+	m_fl_ang = m_raw_ang[m_channel_fl].read();
+	m_br_ang = m_raw_ang[m_channel_br].read();
+	m_bl_ang = m_raw_ang[m_channel_bl].read();
 
-
+	/*-----------------------------------------------
+	m_inverse_x に従って極性を反転する
+	-----------------------------------------------*/
 	if (m_inverse_fr)
 		m_fr *= -1;
 	if (m_inverse_fl)

@@ -136,7 +136,7 @@ cv::Point rot(cv::Point in, double theta)
     out.y = in.x * sin(theta) + in.y * cos(theta);
     return out;
 }
-void draw_robot(cv::Mat img, Chassis &chassis, Imu &imu, size_t margin, double scale)
+void draw_robot(cv::Mat img, SteerChassis &chassis, Imu &imu, size_t margin, double scale)
 {
     double ridge = 256 * scale;                                 /* 辺の長さ */
     double wheel_offset = 40 * scale;                           /* 角から車輪までの距離 */
@@ -159,14 +159,14 @@ void draw_robot(cv::Mat img, Chassis &chassis, Imu &imu, size_t margin, double s
     cv::Point wheel_br = corner_br + cv::Point(-wheel_offset, -wheel_offset);
     cv::Point wheel_bl = corner_bl + cv::Point(wheel_offset, -wheel_offset);
     /* 車輪の速度を表す矢印 */
-    cv::Point wheel_fr_from = wheel_fr + cv::Point(cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_fr() * wheel_base_size/-2.0);
-    cv::Point wheel_fr_to = wheel_fr + cv::Point  (cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_fr() * wheel_base_size/2.0);
-    cv::Point wheel_fl_from = wheel_fl + cv::Point(cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_fr() * wheel_base_size/-2.0);
-    cv::Point wheel_fl_to = wheel_fl + cv::Point  (cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read()))* chassis.raw_fl() *  wheel_base_size/2.0);
-    cv::Point wheel_br_from = wheel_br + cv::Point(cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_fr() * wheel_base_size/-2.0);
-    cv::Point wheel_br_to = wheel_br + cv::Point  (cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read()))* chassis.raw_br() *  wheel_base_size/2.0);
-    cv::Point wheel_bl_from = wheel_bl + cv::Point(cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_fr() * wheel_base_size/-2.0);
-    cv::Point wheel_bl_to = wheel_bl + cv::Point  (cv::Point2f(cos(chassis.m_theta.read()),-sin(chassis.m_theta.read())) * chassis.raw_bl() * wheel_base_size/2.0);
+    cv::Point wheel_fr_from = wheel_fr + cv::Point(cv::Point2f(cos(chassis.raw_fr_ang()),-sin(chassis.raw_fr_ang())) * chassis.raw_fr() * wheel_base_size/-2.0);
+    cv::Point wheel_fr_to = wheel_fr + cv::Point  (cv::Point2f(cos(chassis.raw_fr_ang()),-sin(chassis.raw_fr_ang())) * chassis.raw_fr() * wheel_base_size/2.0);
+    cv::Point wheel_fl_from = wheel_fl + cv::Point(cv::Point2f(cos(chassis.raw_fl_ang()),-sin(chassis.raw_fl_ang())) * chassis.raw_fl() * wheel_base_size/-2.0);
+    cv::Point wheel_fl_to = wheel_fl + cv::Point  (cv::Point2f(cos(chassis.raw_fl_ang()),-sin(chassis.raw_fl_ang()))* chassis.raw_fl() *  wheel_base_size/2.0);
+    cv::Point wheel_br_from = wheel_br + cv::Point(cv::Point2f(cos(chassis.raw_br_ang()),-sin(chassis.raw_br_ang())) * chassis.raw_br() * wheel_base_size/-2.0);
+    cv::Point wheel_br_to = wheel_br + cv::Point  (cv::Point2f(cos(chassis.raw_br_ang()),-sin(chassis.raw_br_ang()))* chassis.raw_br() *  wheel_base_size/2.0);
+    cv::Point wheel_bl_from = wheel_bl + cv::Point(cv::Point2f(cos(chassis.raw_bl_ang()),-sin(chassis.raw_bl_ang())) * chassis.raw_bl() * wheel_base_size/-2.0);
+    cv::Point wheel_bl_to = wheel_bl + cv::Point  (cv::Point2f(cos(chassis.raw_bl_ang()),-sin(chassis.raw_bl_ang())) * chassis.raw_bl() * wheel_base_size/2.0);
     /*-----------------------------------------------
     座標変換
     -----------------------------------------------*/

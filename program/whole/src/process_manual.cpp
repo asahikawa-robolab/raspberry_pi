@@ -26,17 +26,17 @@ void thread_manual(jibiki::ShareVar<bool> &exit_flag,
 
             g_steer.m_speed = speed * 1E-2 * g_chassis.max_rpm();
             g_steer.m_theta = theta;
-            // g_steer.calc();
-            printf("%lf,%lf,%lf,%lf\n", g_steer.bl_ang(), g_steer.br_ang(), g_steer.fl_ang(), g_steer.fr_ang());
+            g_steer.calc();
+            // printf("%lf,%lf,%lf,%lf\n", g_steer.bl_ang(), g_steer.br_ang(), g_steer.fl_ang(), g_steer.fr_ang());
             /* 旋回 */
             if (g_controller.l_cross_r())
-                g_chassis.m_spin = jibiki::deg_rad(0);
+                g_steer.m_spin = jibiki::deg_rad(0);
             if (g_controller.l_cross_u())
-                g_chassis.m_spin = jibiki::deg_rad(90);
-            if (g_controller.l_lever_l())
-                g_chassis.m_spin = jibiki::deg_rad(180);
+                g_steer.m_spin = jibiki::deg_rad(90);
+            if (g_controller.l_cross_l())
+                g_steer.m_spin = jibiki::deg_rad(180);
             if (g_controller.l_cross_d())
-                g_chassis.m_spin = jibiki::deg_rad(270);
+                g_steer.m_spin = jibiki::deg_rad(270);
 
             // 昇降
             if (g_controller.l_switch_u())

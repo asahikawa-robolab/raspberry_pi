@@ -216,6 +216,8 @@ protected:
 	virtual void load_json(void);
 	double calc_rotate(void);
 	double calc_angle_diff(double subed, double sub, TurnMode turn_mode);
+	Chassis();
+
 public:
 	virtual void calc(void);
 
@@ -228,7 +230,6 @@ public:
 
 public:
 	Chassis(Imu& imu, std::string json_path = "setting.json");
-	Chassis();
 	void stop(void);
 	double fr(void);
 	double fl(void);
@@ -351,24 +352,24 @@ inline double SteerChassis::bl_ang(void)
 inline double SteerChassis::raw_fr_ang(void)
 {
 	calc();
-	return m_raw_rpm[0].read();
+	return m_raw_ang[0].read();
 }
 /* 生の回転数目標値を返す（fl_ang） */
 inline double SteerChassis::raw_fl_ang(void)
 {
 	calc();
-	return m_raw_rpm[1].read();
+	return m_raw_ang[1].read();
 }
 /* 生の回転数目標値を返す（br_ang） */
 inline double SteerChassis::raw_br_ang(void)
 {
 	calc();
-	return m_raw_rpm[2].read();
+	return m_raw_ang[2].read();
 }
 /* 生の回転数目標値を返す（bl_ang） */
 inline double SteerChassis::raw_bl_ang(void)
 {
 	calc();
-	return m_raw_rpm[3].read();
+	return m_raw_ang[3].read();
 }
 #endif
