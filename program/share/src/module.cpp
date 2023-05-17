@@ -620,7 +620,6 @@ Chassis ::Chassis() {}
  *
 -----------------------------------------------*/
 SteerChassis::SteerChassis(Imu &imu, std::string json_path)
-//: Chassis(imu, json_path)
 {
 	m_speed = 0;
 	m_imu = &imu;
