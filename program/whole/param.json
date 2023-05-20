@@ -11,7 +11,9 @@
         ["stop pwm", 10, 10],
         ["kp", 20, 20],
         ["encoder pol", 1, 1],
-        ["encoder resolution", 384, 300]
+        ["encoder resolution", 384, 300],
+        ["error stop", 0, 0],
+        ["max rpm", 300, 300]  
     ],
     "com_rot_control": [
         ["enable", 1, 0],
@@ -37,7 +39,9 @@
         ["stop pwm", 10, 10],
         ["kp", 20, 20],
         ["encoder pol", 0, 0],
-        ["encoder resolution", 384, 384]       
+        ["encoder resolution", 384, 384],
+        ["error stop", 0, 0],
+        ["max rpm", 300, 300]      
     ],
     "chassis_b": [
         ["enable", 1, 1],
@@ -46,6 +50,8 @@
         ["stop pwm", 10, 10],
         ["kp", 20, 20],
         ["encoder pol", 0, 0],
-        ["encoder resolution", 384, 384]
+        ["encoder resolution", 384, 384],
+        ["error stop", 0, 0],
+        ["max rpm", 300, 300] 
     ]    
 }
