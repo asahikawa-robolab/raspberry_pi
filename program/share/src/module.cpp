@@ -660,16 +660,15 @@ void SteerChassis::calc()
 	m_raw_rpm[2] = m_speed.read();
 	m_raw_rpm[3] = m_speed.read();
 
-
 	if (m_speed.read() == 0)
 	{
 		/*その場回転*/
 		if (rotate != 0)
 		{
-			m_raw_ang[0] = M_PI_4*3;
-			m_raw_ang[1] = M_PI_4 *5;
-			m_raw_ang[2] = M_PI_4 ;
-			m_raw_ang[3] = M_PI_4 *7;
+			m_original_ang[0] = M_PI_4 * 3;
+			m_original_ang[1] = M_PI_4 * 5;
+			m_original_ang[2] = M_PI_4;
+			m_original_ang[3] = M_PI_4 * 7;
 			m_raw_rpm[0] = rotate;
 			m_raw_rpm[1] = rotate;
 			m_raw_rpm[2] = rotate;
@@ -679,12 +678,21 @@ void SteerChassis::calc()
 	else
 	{
 		/*平行移動*/
-		m_raw_ang[0] = m_theta.read()-current_spin;
-		m_raw_ang[1] = m_theta.read()-current_spin;
-		m_raw_ang[2] = m_theta.read()-current_spin;
-		m_raw_ang[3] = m_theta.read()-current_spin;
+		m_original_ang[0] = m_theta.read() - current_spin;
+		m_original_ang[1] = m_theta.read() - current_spin;
+		m_original_ang[2] = m_theta.read() - current_spin;
+		m_original_ang[3] = m_theta.read() - current_spin;
 	}
 
+	/*目標角度との差が90度以上の時，角度差を小さくするようにする*/
+	for (int i = 0; i < 4; i++)
+	{
+		if (fabs(calc_angle_diff(m_old_origina_ang[i].read(), m_original_ang[i].read(), TURN_SHORTEST)) > M_PI_2)
+			m_polarity[i] ^= 1;
+		m_raw_rpm[i] *= !m_polarity[i].read() * 2 - 1;    /*回転を反転*/
+		m_raw_ang[i] = m_original_ang[i].read()+ m_polarity[i].read() * M_PI;  /*角度を反転*/
+	}
+	
 	/*-----------------------------------------------
 	m_channel_x に従って値を入れ替える
 	-----------------------------------------------*/
@@ -709,6 +717,9 @@ void SteerChassis::calc()
 		m_br *= -1;
 	if (m_inverse_bl)
 		m_bl *= -1;
+
+	for (int i = 0; i < 4; i++)
+		m_old_origina_ang[i] = m_original_ang[i].read();
 }
 void SteerChassis::load_json()
 {

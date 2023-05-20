@@ -321,8 +321,12 @@ public:
 	double raw_bl_ang(void);
 private:
 	jibiki::ShareVar<double> m_fr_ang, m_fl_ang, m_br_ang, m_bl_ang; /* 角度目標値 */
+	jibiki::ShareVar<double> m_original_ang[4];      /*方向の入れ替えのない角度*/
 	jibiki::ShareVar<double> m_raw_ang[4];           /* 角度目標値（入れ替え，反転なし） */
+	jibiki::ShareVar<double> m_old_origina_ang[4];           /* 古い角度目標値（入れ替え，反転なし） */
+	jibiki::ShareVar<bool> m_polarity[4];
 	virtual void load_json(void);
+
 };
 /* 回転数目標値を返す（fr_ang） */
 inline double SteerChassis::fr_ang(void)
