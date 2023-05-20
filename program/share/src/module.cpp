@@ -11,7 +11,7 @@
 *
 -----------------------------------------------*/
 /* 受信データをメンバにセットする */
-void SwitchData::set(jibiki::ParamCom& com)
+void SwitchData::set(jibiki::ParamCom &com)
 {
 	m_push_l = (com.rx(0) >> 0) & 0b1;
 	m_push_r = (com.rx(0) >> 1) & 0b1;
@@ -37,21 +37,21 @@ void SwitchData::set(jibiki::ParamCom& com)
 
 Controller::Controller(std::string json_path)
 	: m_speed(0), m_theta{}, m_time(jibiki::get_time()),
-	m_l_cross_l(false), m_l_cross_r(false),
-	m_l_cross_u(false), m_l_cross_d(false),
-	m_r_cross_l(false), m_r_cross_r(false),
-	m_r_cross_u(false), m_r_cross_d(false),
-	m_l_switch_d(false), m_l_switch_m(false),
-	m_r_switch_d(false), m_r_switch_m(false),
-	m_l_lever_l(false), m_l_lever_r(false),
-	m_r_lever_l(false), m_r_lever_r(false),
-	m_l_analog_stick_h(127), m_l_analog_stick_v(127),
-	m_r_analog_stick_h(127), m_r_analog_stick_v(127),
-	m_l_slide(false), m_r_slide(false),
-	m_l_switch_u(false), m_r_switch_u(false),
-	m_tact_lu(false), m_tact_mu(false),
-	m_tact_ru(false), m_tact_ld(false),
-	m_tact_md(false), m_tact_rd(false)
+	  m_l_cross_l(false), m_l_cross_r(false),
+	  m_l_cross_u(false), m_l_cross_d(false),
+	  m_r_cross_l(false), m_r_cross_r(false),
+	  m_r_cross_u(false), m_r_cross_d(false),
+	  m_l_switch_d(false), m_l_switch_m(false),
+	  m_r_switch_d(false), m_r_switch_m(false),
+	  m_l_lever_l(false), m_l_lever_r(false),
+	  m_r_lever_l(false), m_r_lever_r(false),
+	  m_l_analog_stick_h(127), m_l_analog_stick_v(127),
+	  m_r_analog_stick_h(127), m_r_analog_stick_v(127),
+	  m_l_slide(false), m_r_slide(false),
+	  m_l_switch_u(false), m_r_switch_u(false),
+	  m_tact_lu(false), m_tact_mu(false),
+	  m_tact_ru(false), m_tact_ld(false),
+	  m_tact_md(false), m_tact_rd(false)
 {
 	/* JSON の読み込み */
 	try
@@ -59,10 +59,10 @@ Controller::Controller(std::string json_path)
 		using picojson::object;
 		picojson::value json_val = jibiki::load_json_file(json_path);
 		m_calc_period_ms = (size_t)json_val.get<object>()["system"]
-			.get<object>()["calc_period_ms"]
-			.get<double>();
+							   .get<object>()["calc_period_ms"]
+							   .get<double>();
 	}
-	catch (const std::exception& e)
+	catch (const std::exception &e)
 	{
 		std::stringstream sstr;
 		sstr << json_path << " 中の system の書式が不適切です．";
@@ -74,13 +74,13 @@ Controller::Controller(std::string json_path)
 	{
 		std::stringstream sstr;
 		sstr << json_path << "中の system/calc_period_ms の値が不適切です．\n"
-			<< "正の値を指定してください．";
+			 << "正の値を指定してください．";
 		jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
 		throw std::runtime_error(""); /* エラー発生 */
 	}
 }
 /* 受信データをメンバにセットする */
-void Controller::set(jibiki::ParamCom& com)
+void Controller::set(jibiki::ParamCom &com)
 {
 	/* 値を読み込む */
 	m_l_cross_l = (com.rx(0) >> 0) & 0b1;
@@ -158,93 +158,132 @@ double Controller::my_atan(double y, double x, DirNum dir_num) const
 }
 
 /*LCDにデータを送信する*/
-void Controller::send(jibiki::ParamCom& com)
+void Controller::send(jibiki::ParamCom &com)
 {
 	double passed_time = jibiki::calc_sec(m_time.read(), jibiki::get_time());
 	if (passed_time < m_calc_period_ms * 1E-3)
 		return;
-	uint8_t Transmit_line_data[5] = { '\0', 0x11, 0x00, 0x12, 0x00 };
-	uint8_t Transmit_line_data2[4] = { 0x11, 0x01, 0x12, 0x00 };
+	else
+		m_time = jibiki::get_time();
 
-	std::vector<uint8_t> data(std::begin(Transmit_line_data), std::end(Transmit_line_data));
-	for (int i = 0; i < 20 && transmit_chara[i].read() != '\0'; i++) data.push_back(transmit_chara[i].read());
-	for (int i = 0; i < 4; i++) data.push_back(Transmit_line_data2[i]);
-	for (int i = 0; i < 20 && transmit_chara2[i].read() != '\0'; i++) data.push_back(transmit_chara2[i].read());
+	if (m_is_clear.read())
+	{
+		uint8_t Transmit_line_data[5] = {'\0', 0x11, 0x00, 0x12, 0x00};
+		uint8_t Transmit_line_data2[4] = {0x11, 0x01, 0x12, 0x00};
 
-	com.serial_write(data);
+		std::vector<uint8_t> data(std::begin(Transmit_line_data), std::end(Transmit_line_data));
+		for (int i = 0; i < 20 && transmit_chara[i].read() != '\0'; i++)
+			data.push_back(transmit_chara[i].read());
+		for (int i = 0; i < 4; i++)
+			data.push_back(Transmit_line_data2[i]);
+		for (int i = 0; i < 20 && transmit_chara2[i].read() != '\0'; i++)
+			data.push_back(transmit_chara2[i].read());
+
+		com.serial_write(data);
+	}
+	else
+	{
+		uint8_t Transmit_line_data[4] = {0x11, 0x00, 0x12, 0x00};
+		uint8_t Transmit_line_data2[4] = {0x11, 0x01, 0x12, 0x00};
+
+		std::vector<uint8_t> data(std::begin(Transmit_line_data), std::end(Transmit_line_data));
+
+		int i = 0;
+		for (i = 0; i < 20 && transmit_chara[i].read() != '\0'; i++)
+			data.push_back(transmit_chara[i].read());
+		for (; i < 20; i++)
+			data.push_back(' ');
+
+		for (i = 0; i < 4; i++)
+			data.push_back(Transmit_line_data2[i]);
+
+		for (i = 0; i < 20 && transmit_chara2[i].read() != '\0'; i++)
+			data.push_back(transmit_chara2[i].read());
+		for (; i < 20; i++)
+			data.push_back(' ');
+
+		com.serial_write(data);
+	}
+	m_is_clear = false;
 }
 /*LCDの1行目のデータをセットする*/
-void Controller::lcd_sprintf1(const char *format, ...) 
+void Controller::lcd_sprintf1(const char *format, ...)
 {
-	int j=0;
+	int j = 0;
 	va_list va;
-    va_start(va, format);
+	va_start(va, format);
 	char c[50];
-	vsprintf(c,format,va);
+	vsprintf(c, format, va);
 	va_end(va);
 
-	for (int i = 0; i < 50; i++) {
-		
-		if(c[i] == 0xef)
+	for (int i = 0; i < 50; i++)
+	{
+
+		if (c[i] == 0xef)
 		{
-			switch(c[i+1])
+			switch (c[i + 1])
 			{
 			case 0xbd:
 				i++;
 				break;
 			case 0xbe:
-				i+=2;
-				transmit_chara[j]=c[i]+0x40;
+				i += 2;
+				transmit_chara[j] = c[i] + 0x40;
 				j++;
 				break;
 			default:
-				transmit_chara[j]=c[i];
+				transmit_chara[j] = c[i];
 				j++;
 				break;
 			}
 		}
-		else {
-			transmit_chara[j]=c[i];
+		else
+		{
+			transmit_chara[j] = c[i];
 			j++;
 		}
-		if(j==20)break;
+		if (j == 20)
+			break;
 	}
 }
 
 /*LCDの2行目のデータをセットする*/
-void Controller::lcd_sprintf2(const char *format, ...) 
+void Controller::lcd_sprintf2(const char *format, ...)
 {
-	int j=0;
+	int j = 0;
 	va_list va;
-    va_start(va, format);
+	va_start(va, format);
 	char c[50];
-	vsprintf(c,format,va);
+	vsprintf(c, format, va);
 	va_end(va);
 
-	for (int i = 0; i < 50; i++) {
-		if(c[i] == 0xef)
+	for (int i = 0; i < 50; i++)
+	{
+		if (c[i] == 0xef)
 		{
-			switch(c[i+1])
+			switch (c[i + 1])
 			{
 			case 0xbd:
 				i++;
 				break;
 			case 0xbe:
-				i+=2;
-				transmit_chara2[j]=c[i]+0x40;
+				i += 2;
+				transmit_chara2[j] = c[i] + 0x40;
 				j++;
 				break;
 			default:
-				transmit_chara2[j]=c[i];
+				transmit_chara2[j] = c[i];
 				j++;
 				break;
 			}
 		}
-		else {
-			transmit_chara2[j]=c[i];
+		else
+		{
+			transmit_chara2[j] = c[i];
 			j++;
 		}
-		if(j==20)break;
+		if (j == 20)
+			break;
 	}
 }
 
@@ -265,11 +304,11 @@ void Controller::convt(Mode mode, DirNum dir_num)
 	-----------------------------------------------*/
 	/* mode に対応した生データを読み込む */
 	double horizontal = (mode == MODE_L)
-		? m_l_analog_stick_h.read()
-		: m_r_analog_stick_h.read();
+							? m_l_analog_stick_h.read()
+							: m_r_analog_stick_h.read();
 	double vertical = (mode == MODE_L)
-		? m_l_analog_stick_v.read()
-		: m_r_analog_stick_v.read();
+						  ? m_l_analog_stick_v.read()
+						  : m_r_analog_stick_v.read();
 	/* 0～255 を -127.5～127.5 に変更 */
 	double x = horizontal - 127.5;
 	double y = vertical - 127.5;
@@ -277,11 +316,11 @@ void Controller::convt(Mode mode, DirNum dir_num)
 	/*-----------------------------------------------
 	スピード [0%～100%]
 	-----------------------------------------------*/
-	const double INSENSIBLE_FIELD_SIZE = 30;                                /* 不感領域の大きさ（原点中心の正方形の辺長 ÷ 2） */
-	double speed = sqrt(x * x + y * y);                                     /* 大きさ（原点からの距離）を求める */
+	const double INSENSIBLE_FIELD_SIZE = 30;								/* 不感領域の大きさ（原点中心の正方形の辺長 ÷ 2） */
+	double speed = sqrt(x * x + y * y);										/* 大きさ（原点からの距離）を求める */
 	if (fabs(x) < INSENSIBLE_FIELD_SIZE && fabs(y) < INSENSIBLE_FIELD_SIZE) /* 不感領域にいる場合 0 にする */
 		speed = 0;
-	speed *= 100 / 127.5;                /* 百分率に変換 */
+	speed *= 100 / 127.5;				 /* 百分率に変換 */
 	speed = (speed > 100) ? 100 : speed; /* 100 以下に収める */
 
 	/*-----------------------------------------------
@@ -302,21 +341,21 @@ void Controller::convt(Mode mode, DirNum dir_num)
  *
 -----------------------------------------------*/
 /* コンストラクタ */
-Chassis::Chassis(Imu& imu, std::string json_path)
+Chassis::Chassis(Imu &imu, std::string json_path)
 	: m_imu(&imu),
-	m_json_path(json_path),
-	m_time(jibiki::get_time()),
-	m_speed(0),
-	m_theta(jibiki::deg_rad(90)),
-	m_spin(0),
-	m_turn_mode(TURN_SHORTEST)
+	  m_json_path(json_path),
+	  m_time(jibiki::get_time()),
+	  m_speed(0),
+	  m_theta(jibiki::deg_rad(90)),
+	  m_spin(0),
+	  m_turn_mode(TURN_SHORTEST)
 {
 	try
 	{
 		/* JSON ファイルから設定を読み込む */
 		load_json();
 	}
-	catch (const std::exception& e)
+	catch (const std::exception &e)
 	{
 		jibiki::print_err(__PRETTY_FUNCTION__);
 		throw; /* 仲介 */
@@ -336,7 +375,7 @@ void Chassis::load_json(void)
 	{
 		/* chassis */
 		picojson::value json_value = jibiki::load_json_file(m_json_path);
-		object& obj = json_value.get<object>()["chassis"].get<object>();
+		object &obj = json_value.get<object>()["chassis"].get<object>();
 		/* max_rpm */
 		m_max_rpm = obj["max_rpm"].get<double>();
 		/* channel */
@@ -358,7 +397,7 @@ void Chassis::load_json(void)
 		m_rotate_max = obj["rotate"].get<object>()["max"].get<double>();
 		m_rotate_kp = obj["rotate"].get<object>()["kp"].get<double>();
 	}
-	catch (const std::exception& e)
+	catch (const std::exception &e)
 	{
 		std::stringstream sstr;
 		sstr << m_json_path << " 中の chassis の書式が不適切です．";
@@ -376,25 +415,25 @@ void Chassis::load_json(void)
 		bool v_bl = c4 == 0 || c4 == 1 || c4 == 2 || c4 == 3;
 		if ((v_fr & v_fl & v_br & v_bl) == false)
 			throw std::string("chassis/channel の値が不適切です．\n"
-				" 0, 1, 2, 3 のいずれかを指定してください．");
+							  " 0, 1, 2, 3 のいずれかを指定してください．");
 		bool eq1 = c1 == c2 || c1 == c3 || c1 == c4;
 		bool eq2 = c2 == c3 || c2 == c4;
 		bool eq3 = c3 == c4;
 		if (eq1 | eq2 | eq3)
 			throw std::string("chassis/channel の値が不適切です．\n"
-				"重複しない相異なる値を指定してください．"); /* エラー発生 */
+							  "重複しない相異なる値を指定してください．"); /* エラー発生 */
 		if (m_max_rpm <= 0)
 			throw std::string("chassis/max_rpm の値が不適切です．\n"
-				"正の値を指定してください．"); /* エラー発生 */
+							  "正の値を指定してください．"); /* エラー発生 */
 		if (m_rotate_min <= 0)
 			throw std::string("chassis/rotate/min の値が不適切です．\n"
-				"正の値を指定してください．"); /* エラー発生 */
+							  "正の値を指定してください．"); /* エラー発生 */
 		if (m_rotate_max <= 0)
 			throw std::string("chassis/rotate/max の値が不適切です．\n"
-				"正の値を指定してください．"); /* エラー発生 */
+							  "正の値を指定してください．"); /* エラー発生 */
 		if (m_rotate_kp <= 0)
 			throw std::string("chassis/rotate/kp の値が不適切です．\n"
-				"正の値を指定してください．"); /* エラー発生 */
+							  "正の値を指定してください．"); /* エラー発生 */
 	}
 	catch (std::string err)
 	{
@@ -410,10 +449,10 @@ void Chassis::load_json(void)
 	{
 		picojson::value json_val = jibiki::load_json_file(m_json_path);
 		m_calc_period_ms = (size_t)json_val.get<object>()["system"]
-			.get<object>()["calc_period_ms"]
-			.get<double>();
+							   .get<object>()["calc_period_ms"]
+							   .get<double>();
 	}
-	catch (const std::exception& e)
+	catch (const std::exception &e)
 	{
 		std::stringstream sstr;
 		sstr << m_json_path << " 中の system の書式が不適切です．";
@@ -427,7 +466,7 @@ void Chassis::load_json(void)
 	{
 		std::stringstream sstr;
 		sstr << m_json_path << " 中の system/calc_period_ms の値が不適切です．\n"
-			"正の値を指定してください．";
+							   "正の値を指定してください．";
 		jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
 		throw std::runtime_error(""); /* エラー発生 */
 	}
@@ -451,13 +490,13 @@ void Chassis::calc(void)
 	{
 		std::stringstream sstr;
 		sstr << "Chassis::m_speed の値 (" << m_speed.read() << ") が不適切です．\n "
-			<< m_json_path << " の chassis/max_rpm の値 (" << max_rpm()
-			<< ") を超えないようにしてください．";
+			 << m_json_path << " の chassis/max_rpm の値 (" << max_rpm()
+			 << ") を超えないようにしてください．";
 		jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
 		throw std::runtime_error(""); /* エラー発生 */
 	}
 
-	double rotate = calc_rotate();       /* 回転量を計算 */
+	double rotate = calc_rotate();		 /* 回転量を計算 */
 	double current_spin = m_imu->read(); /* 現在の回転角を取得 */
 
 	/*-----------------------------------------------

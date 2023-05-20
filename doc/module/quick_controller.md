@@ -47,7 +47,7 @@ Controller controller;
 `Controller::l_cross_l()`, `Controller::l_switch_d()`, `Controller::l_analog_stick_h()` 等のメンバ関数でデータを読み出す．
 
 # 6. 文字列のセット
-`Controller::lcd_sprintf1()`,`Controller::lcd_sprintf2()`でLCDに表示する文字列をセットする
+`Controller::lcd_sprintf1()`,`Controller::lcd_sprintf2()`でLCDに表示する文字列をセットする(半角カタカナに対応)
 
 # 7. アナログスティックの計算
 * `Controller::speed()` と `Controller::theta()` でそれぞれアナログスティックの倒し具合と倒している向きを取得できる．

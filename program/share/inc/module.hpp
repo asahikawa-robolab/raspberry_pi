@@ -126,6 +126,7 @@ private:
 
 	jibiki::ShareVar<unsigned char> transmit_chara[20];
 	jibiki::ShareVar<unsigned char> transmit_chara2[20];
+	jibiki::ShareVar<bool> m_is_clear;
 private:
 	double my_atan(double y, double x, DirNum dir_num) const;
 	void convt(Mode mode, DirNum dir_num); /* アナログスティックのデータを大きさ，向きに変換 */
@@ -136,6 +137,7 @@ public:
 	void send(jibiki::ParamCom& com);
 	void lcd_sprintf1(const char* format, ...);
 	void lcd_sprintf2(const char* format, ...);
+	void lcd_clear() { m_is_clear = true; }
 	bool l_cross_l(void) { return m_l_cross_l.read(); }
 	bool l_cross_r(void) { return m_l_cross_r.read(); }
 	bool l_cross_u(void) { return m_l_cross_u.read(); }

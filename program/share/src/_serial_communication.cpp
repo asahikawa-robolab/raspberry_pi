@@ -38,7 +38,7 @@ namespace jibiki
 		  m_rx_complete_cnt(),
 		  m_rx_freq()
 	{
-		setup();
+		setup(true);
 	}
 
 	/*-----------------------------------------------
@@ -62,6 +62,9 @@ namespace jibiki
 	-----------------------------------------------*/
 	bool Com::receive(bool debug)
 	{
+		/* 接続を確認する */
+		cheak_conection();
+
 		/* バッファにデータをためる */
 		uint8_t tmp;
 		if (serial_one_byte_read(&tmp) != true)
@@ -213,16 +216,25 @@ namespace jibiki
 	 * ポートを開く
 	 *
 	-----------------------------------------------*/
-	void Com::setup(void)
+	void Com::setup(bool is_constructor)
 	{
 		m_fd = open(m_path.c_str(), O_RDWR);
 		if (m_fd < 0)
 		{
-			std::stringstream sstr;
-			sstr << "open err, [" << m_name << "] " << m_path;
-			jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
-			throw std::runtime_error(""); /* エラー発生 */
+			if (is_constructor) /* 起動時 */
+			{
+				std::stringstream sstr;
+				sstr << "open err, [" << m_name << "] " << m_path;
+				jibiki::print_err(__PRETTY_FUNCTION__, sstr.str());
+				throw std::runtime_error(""); /* エラー発生 */
+			}
+			else
+			{
+				printf("disconected, (%s) %s\n", m_name.c_str(), m_path.c_str()); /* エラーメッセージを表示 */
+				return;
+			}
 		}
+		printf("Opened, (%s) %s\n", m_name.c_str(), m_path.c_str());
 
 		/*-----------------------------------------------
 		シリアル通信設定
@@ -252,6 +264,25 @@ namespace jibiki
 	void Com::destroy(void) const noexcept
 	{
 		close(m_fd);
+	}
+
+	/*-----------------------------------------------
+	 *
+	 * 接続を確認し，切断されたら再接続を試みる
+	 *
+	-----------------------------------------------*/
+	void Com::cheak_conection(void)
+	{
+		struct termios term;
+		if (tcgetattr(m_fd, &term) < 0) /* 異常なら-1を返す */
+		{
+			setup(false); /* リフレッシュ */
+			if (m_is_refreshed == false)
+			{
+				m_is_refreshed = true;
+				printf("\t\trefreshed.(%s)\n", m_name.c_str());
+			}
+		}
 	}
 
 	/*-----------------------------------------------
@@ -316,6 +347,9 @@ namespace jibiki
 	-----------------------------------------------*/
 	bool Com::check_write(void)
 	{
+		/* 接続を確認する */
+		cheak_conection();
+
 		/*-----------------------------------------------
 		select に必要な変数を用意
 		-----------------------------------------------*/
@@ -342,7 +376,7 @@ namespace jibiki
 		/* write 不可能 */
 		else
 		{
-			setup(); /* リフレッシュ */
+			setup(false); /* リフレッシュ */
 			if (m_is_refreshed == false)
 			{
 				m_is_refreshed = true;
@@ -504,9 +538,8 @@ namespace jibiki
 		  m_com_func(com_func),
 		  m_json_path(json_path)
 	{
-		std::thread t([this] {
-			this->launch();
-		});
+		std::thread t([this]
+					  { this->launch(); });
 		m_t = std::move(t);
 	}
 
