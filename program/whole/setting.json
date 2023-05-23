@@ -15,8 +15,8 @@
         ["chassis_f",              false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI057BZK-if00-port0"],
         ["chassis_b",              false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579ZQ-if00-port0"],
         ["switch",                 false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A906V9YT-if00-port0"],
-        ["imu",                    false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A505RXCU-if00-port0"],
-        ["controller",             true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI055YMN-if00-port0"],
+        ["imu",                    true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI0579AL-if00-port0"],
+        ["controller",             true,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AI05600K-if00-port0"],
         ["com_emergency",          false,      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A505RXYM-if00-port0"]
 
     ],
@@ -35,9 +35,10 @@
             "bl": false            
         },
         "rotate": {
-            "min": 20,
             "max": 50,
-            "kp": 60
+            "kp": 60,
+            "kd": 20,
+            "ki": 10
         }
     },
     "system": {
