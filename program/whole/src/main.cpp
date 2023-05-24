@@ -46,6 +46,8 @@ int main(void)
                               com_limit,
                               com_chassis_f,
                               com_chassis_b,
+                              com_steerchassis_f,
+                              com_steerchassis_b,
                               com_switch,
                               com_imu,
                               com_controller,

@@ -47,5 +47,32 @@
         ["kp", 20, 20],
         ["encoder pol", 0, 0],
         ["encoder resolution", 384, 384]
-    ]    
+    ],
+    "steerchassis_f": [
+        ["enable", 1, 0],
+        ["zero point pwm", 40, 30],
+        ["max pwm", 100, 100],
+        ["min pwm", 10, 5],
+        ["stop rev", 3, 3],
+        ["stop pwm", 7, 10],
+        ["pwm change", 500, 170],
+        ["kp", 100, 100],
+        ["permissible err", 1, 1],
+        ["encoder pol", 0, 1],
+        ["encoder resolution", 300, 300]
+    ],
+    "steerchassis_b": [
+        ["enable", 1, 1],
+        ["zero point pwm", 40, 30],
+        ["max pwm", 100, 100],
+        ["min pwm", 10, 5],
+        ["stop rev", 3, 3],
+        ["stop pwm", 7, 10],
+        ["pwm change", 500, 170],
+        ["kp", 100, 100],
+        ["permissible err", 1, 1],
+        ["encoder pol", 0, 1],
+        ["encoder resolution", 300, 300]
+    ]       
+
 }

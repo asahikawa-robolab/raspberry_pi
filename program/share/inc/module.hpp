@@ -23,7 +23,7 @@ private:
 	jibiki::ShareVar<uint8_t> m_slide; /* スライドポテンショメータ */
 
 public:
-	void set(jibiki::ParamCom& com); /* 受信データをメンバにセットする */
+	void set(jibiki::ParamCom &com); /* 受信データをメンバにセットする */
 	uint8_t push_l(void) { return m_push_l.read(); }
 	uint8_t push_r(void) { return m_push_r.read(); }
 	uint8_t toggle(std::size_t index);
@@ -58,9 +58,9 @@ private:
 
 public:
 	Imu(void) noexcept : m_raw_data(0), m_offset(0) {}
-	void write_offset(double angle);      /* read の結果が angle になるようにオフセットを設定する */
+	void write_offset(double angle);	  /* read の結果が angle になるようにオフセットを設定する */
 	void write_raw_data(double raw_data); /* 生データを書き込む */
-	double read(void);                    /* 角度データを読み出す */
+	double read(void);					  /* 角度データを読み出す */
 };
 inline void Imu::write_offset(double angle) { m_offset = angle - m_raw_data.read(); }
 inline void Imu::write_raw_data(double raw_data) { m_raw_data = raw_data; }
@@ -82,15 +82,16 @@ public:
 	typedef enum /* 方向の分割数 */
 	{
 		DIR_INF, /* 全方向 */
-		DIR_8,   /* ８方向 */
-		DIR_4,   /* ４方向 */
+		DIR_8,	 /* ８方向 */
+		DIR_4,	 /* ４方向 */
 	} DirNum;
 
 private: /* コンストラクタでしか変更操作が行われないため排他制御不要 */
 	size_t m_calc_period_ms;
+
 private:
-	jibiki::ShareVar<double> m_speed;            /* スティックの倒し具合 */
-	jibiki::ShareVar<double> m_theta[2];         /* スティックを倒している向き */
+	jibiki::ShareVar<double> m_speed;			 /* スティックの倒し具合 */
+	jibiki::ShareVar<double> m_theta[2];		 /* スティックを倒している向き */
 	jibiki::ShareVar<jibiki::time_point> m_time; /* 実行周期の管理 */
 
 	jibiki::ShareVar<bool> m_l_cross_l;
@@ -127,16 +128,17 @@ private:
 	jibiki::ShareVar<unsigned char> transmit_chara[20];
 	jibiki::ShareVar<unsigned char> transmit_chara2[20];
 	jibiki::ShareVar<bool> m_is_clear;
+
 private:
 	double my_atan(double y, double x, DirNum dir_num) const;
 	void convt(Mode mode, DirNum dir_num); /* アナログスティックのデータを大きさ，向きに変換 */
 
 public:
 	Controller(std::string json_path = "setting.json");
-	void set(jibiki::ParamCom& com);
-	void send(jibiki::ParamCom& com);
-	void lcd_sprintf1(const char* format, ...);
-	void lcd_sprintf2(const char* format, ...);
+	void set(jibiki::ParamCom &com);
+	void send(jibiki::ParamCom &com);
+	void lcd_sprintf1(const char *format, ...);
+	void lcd_sprintf2(const char *format, ...);
 	void lcd_clear() { m_is_clear = true; }
 	bool l_cross_l(void) { return m_l_cross_l.read(); }
 	bool l_cross_r(void) { return m_l_cross_r.read(); }
@@ -193,8 +195,8 @@ class Chassis
 public:
 	typedef enum
 	{
-		TURN_CW,       /* 時計回り */
-		TURN_CCW,      /* 反時計回り */
+		TURN_CW,	   /* 時計回り */
+		TURN_CCW,	   /* 反時計回り */
 		TURN_SHORTEST, /* 最短方向 */
 	} TurnMode;
 
@@ -203,14 +205,14 @@ protected: /* コンストラクタでしか変更操作が行われないため
 	bool m_inverse_fr, m_inverse_fl, m_inverse_br, m_inverse_bl;
 	double m_max_rpm;
 	double m_rotate_max, m_rotate_min, m_rotate_kp;
-	Imu* m_imu;
+	Imu *m_imu;
 	std::string m_json_path;
 	size_t m_calc_period_ms;
 
 protected:
 	jibiki::ShareVar<double> m_fr, m_fl, m_br, m_bl; /* 回転数目標値 */
-	jibiki::ShareVar<double> m_raw_rpm[4];           /* 回転数目標値（入れ替え，反転なし） */
-	jibiki::ShareVar<jibiki::time_point> m_time;     /* calc 用 */
+	jibiki::ShareVar<double> m_raw_rpm[4];			 /* 回転数目標値（入れ替え，反転なし） */
+	jibiki::ShareVar<jibiki::time_point> m_time;	 /* calc 用 */
 
 protected:
 	virtual void load_json(void);
@@ -221,7 +223,6 @@ protected:
 public:
 	virtual void calc(void);
 
-
 public:
 	jibiki::ShareVar<double> m_speed;
 	jibiki::ShareVar<double> m_theta;
@@ -229,7 +230,7 @@ public:
 	jibiki::ShareVar<TurnMode> m_turn_mode;
 
 public:
-	Chassis(Imu& imu, std::string json_path = "setting.json");
+	Chassis(Imu &imu, std::string json_path = "setting.json");
 	void stop(void);
 	double fr(void);
 	double fl(void);
@@ -309,7 +310,7 @@ inline double Chassis::rotate_kp(void) const noexcept { return m_rotate_kp; }
 class SteerChassis : public Chassis
 {
 public:
-	SteerChassis(Imu& imu, std::string json_path = "setting.json");
+	SteerChassis(Imu &imu, std::string json_path = "setting.json");
 	virtual void calc(void);
 	double fr_ang(void);
 	double fl_ang(void);
@@ -319,61 +320,75 @@ public:
 	double raw_fl_ang(void);
 	double raw_br_ang(void);
 	double raw_bl_ang(void);
+	int gear_ratio(void);
+
 private:
 	jibiki::ShareVar<double> m_fr_ang, m_fl_ang, m_br_ang, m_bl_ang; /* 角度目標値 */
-	jibiki::ShareVar<double> m_original_ang[4];      /*方向の入れ替えのない角度*/
-	jibiki::ShareVar<double> m_raw_ang[4];           /* 角度目標値（入れ替え，反転なし） */
-	jibiki::ShareVar<double> m_old_origina_ang[4];           /* 古い角度目標値（入れ替え，反転なし） */
+	jibiki::ShareVar<double> m_original_ang[4];						 /*方向の入れ替えのない角度*/
+	jibiki::ShareVar<double> m_raw_ang[4];							 /* 角度目標値（入れ替え，反転なし） */
+	jibiki::ShareVar<double> m_old_origina_ang[4];					 /* 古い角度目標値（入れ替え，反転なし） */
+	jibiki::ShareVar<double> m_old_ang[4];/*前回の角度目標値（360度と0度での一回転を防ぐ前）*/
 	jibiki::ShareVar<bool> m_polarity[4];
-	virtual void load_json(void);
+	jibiki::ShareVar<bool> m_is_r_rot[4];/*右回りの回転フラグ*/
+	jibiki::ShareVar<bool> m_is_l_rot[4];/*左回りの回転フラグ*/
 
+	jibiki::ShareVar<int> m_rot_cnt[4];
+	jibiki::ShareVar<int> m_gear_ratio;
+	virtual void load_json(void);
 };
-/* 回転数目標値を返す（fr_ang） */
+/* 回転角目標値を返す（fr_ang） */
 inline double SteerChassis::fr_ang(void)
 {
 	calc();
-	return m_fr_ang.read();
+	return -(m_fr_ang.read() - 2 * M_PI * m_rot_cnt[0].read());
 }
-/* 回転数目標値を返す（fl_ang） */
+/* 回転角目標値を返す（fl_ang） */
 inline double SteerChassis::fl_ang(void)
 {
 	calc();
-	return m_fl_ang.read();
+	return -(m_fl_ang.read() - 2 * M_PI * m_rot_cnt[1].read());
 }
-/* 回転数目標値を返す（br_ang） */
+/* 回転角目標値を返す（br_ang） */
 inline double SteerChassis::br_ang(void)
 {
 	calc();
-	return m_br_ang.read();
+	return -(m_br_ang.read() - 2 * M_PI * m_rot_cnt[2].read());
 }
-/* 回転数目標値を返す（bl_ang） */
+/* 回転角目標値を返す（bl_ang） */
 inline double SteerChassis::bl_ang(void)
 {
 	calc();
-	return m_bl_ang.read();
+	return -(m_bl_ang.read() - 2 * M_PI * m_rot_cnt[3].read());
 }
-/* 生の回転数目標値を返す（fr_ang） */
+/* 生の回転角目標値を返す（fr_ang） */
 inline double SteerChassis::raw_fr_ang(void)
 {
 	calc();
 	return m_raw_ang[0].read();
 }
-/* 生の回転数目標値を返す（fl_ang） */
+/* 生の回転角目標値を返す（fl_ang） */
 inline double SteerChassis::raw_fl_ang(void)
 {
 	calc();
 	return m_raw_ang[1].read();
 }
-/* 生の回転数目標値を返す（br_ang） */
+/* 生の回転角目標値を返す（br_ang） */
 inline double SteerChassis::raw_br_ang(void)
 {
 	calc();
 	return m_raw_ang[2].read();
 }
-/* 生の回転数目標値を返す（bl_ang） */
+/* 生の回転角目標値を返す（bl_ang） */
 inline double SteerChassis::raw_bl_ang(void)
 {
 	calc();
 	return m_raw_ang[3].read();
 }
+/*ギヤ比返すだけ*/
+inline int SteerChassis::gear_ratio(void)
+{
+	calc();
+	return m_gear_ratio.read();
+}
+
 #endif

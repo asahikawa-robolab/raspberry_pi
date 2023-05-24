@@ -689,10 +689,33 @@ void SteerChassis::calc()
 	{
 		if (fabs(calc_angle_diff(m_old_origina_ang[i].read(), m_original_ang[i].read(), TURN_SHORTEST)) > M_PI_2)
 			m_polarity[i] ^= 1;
-		m_raw_rpm[i] *= !m_polarity[i].read() * 2 - 1;    /*回転を反転*/
-		m_raw_ang[i] = m_original_ang[i].read()+ m_polarity[i].read() * M_PI;  /*角度を反転*/
+		m_raw_rpm[i] *= !m_polarity[i].read() * 2 - 1;						   /*回転を反転*/
+		m_raw_ang[i] = m_original_ang[i].read() + m_polarity[i].read() * M_PI; /*角度を反転*/
+																			   // m_raw_ang[i] = jibiki::limit_angle(m_raw_ang[i].read());
 	}
-	
+	/*360度と0度での一回転を防ぐ(m_raw_ang[i]の値をいじってるわけではないので0～2πで考えてええよ～)*/
+	for (int i = 0; i < 4; i++)
+	{
+		if (fabs(m_raw_ang[i].read() - m_old_ang[i].read()) > M_PI_4 * 6)
+		{
+			if (m_raw_ang[i].read() > m_old_ang[i].read())
+				m_is_r_rot[i] = 1;
+			if (m_raw_ang[i].read() < m_old_ang[i].read())
+				m_is_l_rot[i] = 1;
+		}
+		if (m_is_r_rot[i].read() == 1)
+		{ // ↑向き対策
+			m_is_r_rot[i] = 0;
+			m_rot_cnt[i] += 1; // m_is_roted
+		}
+
+		if (m_is_l_rot[i].read() == 1)
+		{//↓向き対策
+			m_is_l_rot[i] = 0;
+			m_rot_cnt[i] -= 1;
+		}
+	}
+
 	/*-----------------------------------------------
 	m_channel_x に従って値を入れ替える
 	-----------------------------------------------*/
@@ -705,6 +728,10 @@ void SteerChassis::calc()
 	m_fl_ang = m_raw_ang[m_channel_fl].read();
 	m_br_ang = m_raw_ang[m_channel_br].read();
 	m_bl_ang = m_raw_ang[m_channel_bl].read();
+	m_old_ang[0] = m_fr_ang.read();
+	m_old_ang[1] = m_fl_ang.read();
+	m_old_ang[2] = m_br_ang.read();
+	m_old_ang[3] = m_bl_ang.read();
 
 	/*-----------------------------------------------
 	m_inverse_x に従って極性を反転する
@@ -754,6 +781,8 @@ void SteerChassis::load_json()
 		m_rotate_min = obj["rotate"].get<object>()["min"].get<double>();
 		m_rotate_max = obj["rotate"].get<object>()["max"].get<double>();
 		m_rotate_kp = obj["rotate"].get<object>()["kp"].get<double>();
+		/*エンコーダと操舵のギヤ比*/
+		m_gear_ratio = obj["gear"].get<object>()["ratio"].get<double>();
 	}
 	catch (const std::exception &e)
 	{

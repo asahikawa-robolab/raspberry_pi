@@ -49,7 +49,7 @@ void com_rev_control(std::string path, std::string name)
 
 void com_rot_control(std::string path, std::string name)
 {
-    static jibiki::ParamCom com(path, 5, 6, B57600, name, true);
+    static jibiki::ParamCom com(path, 5, 8, B57600, name, true);
 
     /* 送信 */
     com.tx(1) = jibiki::up(g_rot_tgt[0].read());
@@ -154,7 +154,44 @@ void com_chassis_b(std::string path, std::string name)
     //          jibiki::asbl(com.rx(0), com.rx(1)),(int8_t)com.rx(4));
     }
 }
+void com_steerchassis_f(std::string path, std::string name)
+{
+    static jibiki::ParamCom com(path, 5, 8, B57600, name, true);
 
+    /* 送信 */
+    com.tx(1) = jibiki::up(jibiki::rad_deg(g_steer.fr_ang())*g_steer.gear_ratio());
+    com.tx(2) = jibiki::low(jibiki::rad_deg(g_steer.fr_ang())*g_steer.gear_ratio());
+    com.tx(3) = jibiki::up(jibiki::rad_deg(g_steer.fl_ang())*g_steer.gear_ratio());
+    com.tx(4) = jibiki::low(jibiki::rad_deg(g_steer.fl_ang())*g_steer.gear_ratio());
+    com.send();
+    printf("%f\n",jibiki::rad_deg(g_steer.fr_ang()));
+    /* 受信 */
+    if (com.receive())
+    {
+        g_rot_steer_curr[0] = jibiki::asbl(com.rx(0), com.rx(1));
+        g_rot_steer_curr[1] = jibiki::asbl(com.rx(2), com.rx(3));
+       
+    }
+}
+void com_steerchassis_b(std::string path, std::string name)
+{
+    static jibiki::ParamCom com(path, 5, 8, B57600, name, true);
+
+    /* 送信 */
+    com.tx(1) = jibiki::up(jibiki::rad_deg(g_steer.br_ang())*g_steer.gear_ratio());
+    com.tx(2) = jibiki::low(jibiki::rad_deg(g_steer.br_ang())*g_steer.gear_ratio());
+    com.tx(3) = jibiki::up(jibiki::rad_deg(g_steer.bl_ang())*g_steer.gear_ratio());
+    com.tx(4) = jibiki::low(jibiki::rad_deg(g_steer.bl_ang())*g_steer.gear_ratio());
+    com.send();
+    printf("%f\n",jibiki::rad_deg(g_steer.fr_ang()));
+    /* 受信 */
+    if (com.receive())
+    {
+        g_rot_steer_curr[2] = jibiki::asbl(com.rx(0), com.rx(1));
+        g_rot_steer_curr[3] = jibiki::asbl(com.rx(2), com.rx(3));
+       
+    }
+}
 void com_switch(std::string path, std::string name)
 {
     static jibiki::ParamCom com(path, 1, 3, B57600, name, false);
