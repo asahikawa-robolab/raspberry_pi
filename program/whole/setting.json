@@ -37,7 +37,6 @@
             "bl": false            
         },
         "rotate": {
-            "min": 20,
             "max": 50,
             "kp": 60,
             "kd": 20,
