@@ -204,7 +204,7 @@ protected: /* コンストラクタでしか変更操作が行われないため
 	size_t m_channel_fr, m_channel_fl, m_channel_br, m_channel_bl;
 	bool m_inverse_fr, m_inverse_fl, m_inverse_br, m_inverse_bl;
 	double m_max_rpm;
-	double m_rotate_max, m_rotate_min, m_rotate_kp;
+	double m_rotate_max, m_rotate_kp,m_rotate_ki, m_rotate_kd;
 	Imu *m_imu;
 	std::string m_json_path;
 	size_t m_calc_period_ms;

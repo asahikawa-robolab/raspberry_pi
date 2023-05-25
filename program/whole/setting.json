@@ -39,7 +39,9 @@
         "rotate": {
             "min": 20,
             "max": 50,
-            "kp": 60
+            "kp": 60,
+            "kd": 20,
+            "ki": 10
         }
     },
     "SteerChassis": {
@@ -59,7 +61,9 @@
         "rotate": {
             "min": 20,
             "max": 200,
-            "kp": 60
+            "kp": 60,
+            "kd": 20,
+            "ki": 10
         },
         "gear":{
             "ratio": 3

@@ -393,9 +393,10 @@ void Chassis::load_json(void)
 		m_inverse_br = obj["inverse"].get<object>()["br"].get<bool>();
 		m_inverse_bl = obj["inverse"].get<object>()["bl"].get<bool>();
 		/* rotate */
-		m_rotate_min = obj["rotate"].get<object>()["min"].get<double>();
 		m_rotate_max = obj["rotate"].get<object>()["max"].get<double>();
 		m_rotate_kp = obj["rotate"].get<object>()["kp"].get<double>();
+		m_rotate_ki = obj["rotate"].get<object>()["ki"].get<double>();
+		m_rotate_kd = obj["rotate"].get<object>()["kd"].get<double>();
 	}
 	catch (const std::exception &e)
 	{
@@ -425,14 +426,17 @@ void Chassis::load_json(void)
 		if (m_max_rpm <= 0)
 			throw std::string("chassis/max_rpm の値が不適切です．\n"
 							  "正の値を指定してください．"); /* エラー発生 */
-		if (m_rotate_min <= 0)
-			throw std::string("chassis/rotate/min の値が不適切です．\n"
+		if (m_rotate_kd < 0)
+			throw std::string("chassis/rotate/kd の値が不適切です．\n"
 							  "正の値を指定してください．"); /* エラー発生 */
 		if (m_rotate_max <= 0)
 			throw std::string("chassis/rotate/max の値が不適切です．\n"
 							  "正の値を指定してください．"); /* エラー発生 */
 		if (m_rotate_kp <= 0)
 			throw std::string("chassis/rotate/kp の値が不適切です．\n"
+							  "正の値を指定してください．"); /* エラー発生 */
+		if (m_rotate_ki < 0)
+			throw std::string("chassis/rotate/ki の値が不適切です．\n"
 							  "正の値を指定してください．"); /* エラー発生 */
 	}
 	catch (std::string err)
@@ -557,7 +561,8 @@ double Chassis::calc_rotate(void)
 	/* 角度偏差を計算 */
 	double diff =
 		calc_angle_diff(m_spin.read(), m_imu->read(), m_turn_mode.read());
-
+	static double old_diff, ie;
+	double de;
 	/* 偏差が小さくなったら最短モードに変更 */
 	/* （オーバーシュートしたときにもう一回転してしまうから） */
 	if (fabs(diff) < jibiki::deg_rad(90))
@@ -571,13 +576,15 @@ double Chassis::calc_rotate(void)
 	}
 	else
 	{
-		rotate = diff * m_rotate_kp;
-		if (fabs(rotate) < m_rotate_min)
-			rotate = m_rotate_min * jibiki::get_signal(rotate);
-		else if (m_rotate_max < fabs(rotate))
+		de = (diff - old_diff) / m_calc_period_ms * 1000;
+		ie += (diff + old_diff) * m_calc_period_ms / 1000 / 2;
+		rotate = diff * m_rotate_kp + de * m_rotate_kd + ie * m_rotate_ki;
+
+		printf("kp%lf,kd%lf,ki%lf\n", diff * m_rotate_kp, ie * m_rotate_ki, de * m_rotate_kd);
+		if (m_rotate_max < fabs(rotate))
 			rotate = m_rotate_max * jibiki::get_signal(rotate);
 	}
-
+	old_diff = diff;
 	return rotate;
 }
 /* -pi ~ pi の不連続部に影響されない角度偏差（subed - sub）を返す */
@@ -675,6 +682,7 @@ void SteerChassis::calc()
 			m_raw_rpm[3] = rotate;
 		}
 	}
+
 	else
 	{
 		/*平行移動*/
@@ -682,6 +690,7 @@ void SteerChassis::calc()
 		m_original_ang[1] = m_theta.read() - current_spin;
 		m_original_ang[2] = m_theta.read() - current_spin;
 		m_original_ang[3] = m_theta.read() - current_spin;
+		/*移動しながら回転と姿勢制御*/
 	}
 
 	/*目標角度との差が90度以上の時，角度差を小さくするようにする*/
@@ -710,7 +719,7 @@ void SteerChassis::calc()
 		}
 
 		if (m_is_l_rot[i].read() == 1)
-		{//↓向き対策
+		{ // ↓向き対策
 			m_is_l_rot[i] = 0;
 			m_rot_cnt[i] -= 1;
 		}
@@ -778,9 +787,10 @@ void SteerChassis::load_json()
 		m_inverse_br = obj["inverse"].get<object>()["br"].get<bool>();
 		m_inverse_bl = obj["inverse"].get<object>()["bl"].get<bool>();
 		/* rotate */
-		m_rotate_min = obj["rotate"].get<object>()["min"].get<double>();
 		m_rotate_max = obj["rotate"].get<object>()["max"].get<double>();
 		m_rotate_kp = obj["rotate"].get<object>()["kp"].get<double>();
+		m_rotate_ki = obj["rotate"].get<object>()["ki"].get<double>();
+		m_rotate_kd = obj["rotate"].get<object>()["kd"].get<double>();
 		/*エンコーダと操舵のギヤ比*/
 		m_gear_ratio = obj["gear"].get<object>()["ratio"].get<double>();
 	}
@@ -812,8 +822,8 @@ void SteerChassis::load_json()
 		if (m_max_rpm <= 0)
 			throw std::string("chassis/max_rpm の値が不適切です．\n"
 							  "正の値を指定してください．"); /* エラー発生 */
-		if (m_rotate_min <= 0)
-			throw std::string("chassis/rotate/min の値が不適切です．\n"
+		if (m_rotate_kd <= 0)
+			throw std::string("chassis/rotate/kd の値が不適切です．\n"
 							  "正の値を指定してください．"); /* エラー発生 */
 		if (m_rotate_max <= 0)
 			throw std::string("chassis/rotate/max の値が不適切です．\n"
