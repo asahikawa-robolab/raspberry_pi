@@ -22,7 +22,7 @@ void thread_kbhit(jibiki::ShareVar<bool> &exit_flag,
             }
             if ((emergency_sw.read() == 0) && (start_flag.read() == true))
                 current_method = jibiki::thread::OPERATE_AUTO;
-                
+
             if (jibiki::kbhit())
                 pushed_key = getchar();
 
@@ -77,7 +77,15 @@ void thread_kbhit(jibiki::ShareVar<bool> &exit_flag,
             case '\\':
                 g_chassis.m_spin -= jibiki::deg_rad(10);
                 break;
+            case 'a':
+                g_log.start();
+                break;
+            case 'z':
+                g_log.stop();
+                break;
             }
+            g_log.set_data("speed", g_chassis.m_speed.read());
+            g_log.set_data("theta", g_chassis.m_theta.read());
 
             if (pushed_key.read() != -1)
                 pushed_key = -1;

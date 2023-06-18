@@ -759,7 +759,6 @@ void SteerChassis::load_json()
 		m_inverse_br = obj["inverse"].get<object>()["br"].get<bool>();
 		m_inverse_bl = obj["inverse"].get<object>()["bl"].get<bool>();
 		/* rotate */
-		m_rotate_min = obj["rotate"].get<object>()["min"].get<double>();
 		m_rotate_max = obj["rotate"].get<object>()["max"].get<double>();
 		m_rotate_kp = obj["rotate"].get<object>()["kp"].get<double>();
 	}
@@ -790,9 +789,6 @@ void SteerChassis::load_json()
 							  "重複しない相異なる値を指定してください．"); /* エラー発生 */
 		if (m_max_rpm <= 0)
 			throw std::string("chassis/max_rpm の値が不適切です．\n"
-							  "正の値を指定してください．"); /* エラー発生 */
-		if (m_rotate_min <= 0)
-			throw std::string("chassis/rotate/min の値が不適切です．\n"
 							  "正の値を指定してください．"); /* エラー発生 */
 		if (m_rotate_max <= 0)
 			throw std::string("chassis/rotate/max の値が不適切です．\n"

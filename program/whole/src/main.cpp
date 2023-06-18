@@ -9,6 +9,8 @@
 #include "../../share/inc/_serial_communication.hpp"
 #include "../inc/func_com.hpp"
 #include "../inc/func_mode.hpp"
+#include "../../share/inc/log.hpp"
+#include "../inc/ext_var.hpp"
 
 void thread_manual(jibiki::ShareVar<bool> &exit_flag,
                    jibiki::ShareVar<jibiki::thread::OperateMethod> &current_method);
@@ -31,7 +33,7 @@ int main(void)
     jibiki::ShareVar<bool> start_flag(false);
     jibiki::ShareVar<bool> reset_flag(false);
     jibiki::ShareVar<jibiki::thread::OperateMethod>
-        current_method(jibiki::thread::OPERATE_AUTO);     /* 使用中の操作方法 */
+        current_method(jibiki::thread::OPERATE_MANUAL);   /* 使用中の操作方法 */
     jibiki::ShareVar<std::string> execute_orders("test"); /* 実行する orders */
     jibiki::ShareVarVec<std::string> executing_order;     /* 実行中の order に関する文字列 */
     jibiki::ShareVar<int> pushed_key(-1);                 /* キー入力で受け取った値 */
@@ -60,7 +62,7 @@ int main(void)
                                               std::ref(execute_orders),
                                               std::ref(executing_order),
                                               {test, pwm, rev, rot,
-                                               odometry, set_odometry, 
+                                               odometry, set_odometry,
                                                limit, turn, jerk});
     /*-----------------------------------------------
     手動制御
@@ -85,12 +87,17 @@ int main(void)
                           std::ref(current_method),
                           std::ref(executing_order),
                           std::ref(pushed_key));
+
+    std::thread t_log(&jibiki::Log::thread_log, &g_log,
+                          std::ref(exit_flag));
+
     /*-----------------------------------------------
     スレッドが終了するまで待機
     -----------------------------------------------*/
     t_manual.join();
     t_kbhit.join();
     t_display.join();
+    t_log.join();
 
     return 0;
 }

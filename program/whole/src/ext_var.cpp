@@ -1,5 +1,6 @@
 #include "../../share/inc/_thread.hpp"
 #include "../../share/inc/module.hpp"
+#include "../../share/inc/log.hpp"
 
 jibiki::ShareVar<short> g_pwm_tgt[4];       /* pwm目標値 */
 jibiki::ShareVar<short> g_rev_tgt[4];       /* 回転数目標値 */
@@ -18,3 +19,4 @@ Controller g_controller;                    /* コントローラのデータ */
 Chassis g_chassis(g_imu);                   /* 足回り */
 SteerChassis g_steer(g_imu);                   /* 足回り */
 
+jibiki::Log g_log("test");

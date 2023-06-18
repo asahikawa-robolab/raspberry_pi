@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include "_std_func.hpp"
+#include <unistd.h>
 
 namespace jibiki
 {

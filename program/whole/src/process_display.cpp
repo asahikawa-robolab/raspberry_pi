@@ -254,7 +254,7 @@ void thread_display(jibiki::ShareVar<bool> &exit_flag,
 
         cv::Mat img = cv::Mat::zeros(WINDOW_SIZE, CV_8UC3); /* 画像を作成 */
         cv::namedWindow("window");                          /* ウィンドウを作成 */
-        cv::moveWindow("window", 0, 0);                  /* ウィンドウを移動 */
+        cv::moveWindow("window", 350, 36);                  /* ウィンドウを移動 */
 
         while (jibiki::thread::manage(exit_flag))
         {

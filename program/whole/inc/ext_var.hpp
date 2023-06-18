@@ -2,6 +2,7 @@
 #define EXT_VAR_HPP
 #include "../../share/inc/_thread.hpp"
 #include "../../share/inc/module.hpp"
+#include "../../share/inc/log.hpp"
 
 extern jibiki::ShareVar<short> g_pwm_tgt[4];       /* pwm目標値 */
 extern jibiki::ShareVar<short> g_rev_tgt[4];       /* 回転数目標値 */
@@ -19,5 +20,7 @@ extern Imu g_imu;                                  /* IMU のデータ */
 extern Controller g_controller;                    /* コントローラのデータ */
 extern Chassis g_chassis;                          /* 足回り */
 extern SteerChassis g_steer;  
+
+extern jibiki::Log g_log;
 
 #endif
