@@ -26,7 +26,6 @@ void thread_manual(jibiki::ShareVar<bool> &exit_flag,
 
             g_steer.m_speed = speed * 1E-2 * g_chassis.max_rpm();
             g_steer.m_theta = theta;
-            g_steer.calc();
             // printf("%lf,%lf,%lf,%lf\n", g_steer.bl_ang(), g_steer.br_ang(), g_steer.fl_ang(), g_steer.fr_ang());
             /* 旋回 */
             if (g_controller.l_cross_r())
