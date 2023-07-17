@@ -23,7 +23,7 @@ private:
 	jibiki::ShareVar<uint8_t> m_slide; /* スライドポテンショメータ */
 
 public:
-	void set(jibiki::ParamCom& com); /* 受信データをメンバにセットする */
+	void set(jibiki::ParamCom &com); /* 受信データをメンバにセットする */
 	uint8_t push_l(void) { return m_push_l.read(); }
 	uint8_t push_r(void) { return m_push_r.read(); }
 	uint8_t toggle(std::size_t index);
@@ -58,9 +58,9 @@ private:
 
 public:
 	Imu(void) noexcept : m_raw_data(0), m_offset(0) {}
-	void write_offset(double angle);      /* read の結果が angle になるようにオフセットを設定する */
+	void write_offset(double angle);	  /* read の結果が angle になるようにオフセットを設定する */
 	void write_raw_data(double raw_data); /* 生データを書き込む */
-	double read(void);                    /* 角度データを読み出す */
+	double read(void);					  /* 角度データを読み出す */
 };
 inline void Imu::write_offset(double angle) { m_offset = angle - m_raw_data.read(); }
 inline void Imu::write_raw_data(double raw_data) { m_raw_data = raw_data; }
@@ -82,15 +82,16 @@ public:
 	typedef enum /* 方向の分割数 */
 	{
 		DIR_INF, /* 全方向 */
-		DIR_8,   /* ８方向 */
-		DIR_4,   /* ４方向 */
+		DIR_8,	 /* ８方向 */
+		DIR_4,	 /* ４方向 */
 	} DirNum;
 
 private: /* コンストラクタでしか変更操作が行われないため排他制御不要 */
 	size_t m_calc_period_ms;
+
 private:
-	jibiki::ShareVar<double> m_speed;            /* スティックの倒し具合 */
-	jibiki::ShareVar<double> m_theta[2];         /* スティックを倒している向き */
+	jibiki::ShareVar<double> m_speed;			 /* スティックの倒し具合 */
+	jibiki::ShareVar<double> m_theta[2];		 /* スティックを倒している向き */
 	jibiki::ShareVar<jibiki::time_point> m_time; /* 実行周期の管理 */
 
 	jibiki::ShareVar<bool> m_l_cross_l;
@@ -127,16 +128,17 @@ private:
 	jibiki::ShareVar<unsigned char> transmit_chara[20];
 	jibiki::ShareVar<unsigned char> transmit_chara2[20];
 	jibiki::ShareVar<bool> m_is_clear;
+
 private:
 	double my_atan(double y, double x, DirNum dir_num) const;
 	void convt(Mode mode, DirNum dir_num); /* アナログスティックのデータを大きさ，向きに変換 */
 
 public:
 	Controller(std::string json_path = "setting.json");
-	void set(jibiki::ParamCom& com);
-	void send(jibiki::ParamCom& com);
-	void lcd_sprintf1(const char* format, ...);
-	void lcd_sprintf2(const char* format, ...);
+	void set(jibiki::ParamCom &com);
+	void send(jibiki::ParamCom &com);
+	void lcd_sprintf1(const char *format, ...);
+	void lcd_sprintf2(const char *format, ...);
 	void lcd_clear() { m_is_clear = true; }
 	bool l_cross_l(void) { return m_l_cross_l.read(); }
 	bool l_cross_r(void) { return m_l_cross_r.read(); }
@@ -193,8 +195,8 @@ class Chassis
 public:
 	typedef enum
 	{
-		TURN_CW,       /* 時計回り */
-		TURN_CCW,      /* 反時計回り */
+		TURN_CW,	   /* 時計回り */
+		TURN_CCW,	   /* 反時計回り */
 		TURN_SHORTEST, /* 最短方向 */
 	} TurnMode;
 
@@ -202,15 +204,15 @@ protected: /* コンストラクタでしか変更操作が行われないため
 	size_t m_channel_fr, m_channel_fl, m_channel_br, m_channel_bl;
 	bool m_inverse_fr, m_inverse_fl, m_inverse_br, m_inverse_bl;
 	double m_max_rpm;
-	double m_rotate_max, m_rotate_min, m_rotate_kp;
-	Imu* m_imu;
+	double m_rotate_max, m_rotate_kp, m_rotate_ki, m_rotate_kd;
+	Imu *m_imu;
 	std::string m_json_path;
 	size_t m_calc_period_ms;
 
 protected:
 	jibiki::ShareVar<double> m_fr, m_fl, m_br, m_bl; /* 回転数目標値 */
-	jibiki::ShareVar<double> m_raw_rpm[4];           /* 回転数目標値（入れ替え，反転なし） */
-	jibiki::ShareVar<jibiki::time_point> m_time;     /* calc 用 */
+	jibiki::ShareVar<double> m_raw_rpm[4];			 /* 回転数目標値（入れ替え，反転なし） */
+	jibiki::ShareVar<jibiki::time_point> m_time;	 /* calc 用 */
 
 protected:
 	virtual void load_json(void);
@@ -229,7 +231,7 @@ public:
 	jibiki::ShareVar<TurnMode> m_turn_mode;
 
 public:
-	Chassis(Imu& imu, std::string json_path = "setting.json");
+	Chassis(Imu &imu, std::string json_path = "setting.json");
 	void stop(void);
 	double fr(void);
 	double fl(void);
